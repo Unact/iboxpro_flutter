@@ -1,11 +1,13 @@
 name: iboxpro_flutter_example
 description: Demonstrates how to use the iboxpro_flutter plugin.
 publish_to: 'none'
+version: 0.0.1
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
+  signature_pad_flutter: any
   flutter:
     sdk: flutter
 

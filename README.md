@@ -1,14 +1,34 @@
 # iboxpro_flutter
 
-A new flutter plugin project.
+Flutter плагин для работы с библиотекой [iboxpro](https://www.2can.ru/developer).
+__Работает только на ios__
 
-## Getting Started
+Этот проект использует библиотеку iboxpro, которая является собственностью 2can.
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+## Предварительные настройки
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+1. Получить логин и пароль на [сайте](https://www.2can.ru)
+2. Указать `version` в `pubspec.yaml`. Апи iboxpro отправляет версию, если ее не указать, то приложение упадет
+3. Указать в `Info.plist`
+
+```info
+    <key>NSAppTransportSecurity</key>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>external-accessory</string>
+        <string>bluetooth-central</string>
+    </array>
+    <key>NSLocationUsageDescription</key>
+    <string>Used for iBoxPro</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Used for iBoxPro</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Used for iBoxPro</string>
+```
+
+После этого плагин можно использовать в приложении.
+Для примера использования можно посмотреть приложение-пример.

@@ -78,7 +78,6 @@
 				37617712058C4EF6774A7C6B /* Pods-Runner.release.xcconfig */,
 				DD179DDA825DD9DB5A385A82 /* Pods-Runner.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -391,6 +390,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)/.symlinks/plugins/iboxpro_flutter/ios/Classes/SDK",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.unact.iboxproFlutterExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -526,6 +526,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)/.symlinks/plugins/iboxpro_flutter/ios/Classes/SDK",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.unact.iboxproFlutterExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -554,6 +555,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/Flutter",
+					"$(PROJECT_DIR)/.symlinks/plugins/iboxpro_flutter/ios/Classes/SDK",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.unact.iboxproFlutterExample;
 				PRODUCT_NAME = "$(TARGET_NAME)";

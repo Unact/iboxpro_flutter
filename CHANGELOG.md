@@ -1,3 +1,3 @@
 ## 0.0.1
 
-* TODO: Describe initial release.
+* Имплементация flutter плагина для работы с iboxpro на iOS

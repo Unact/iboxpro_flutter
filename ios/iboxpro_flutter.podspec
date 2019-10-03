@@ -15,7 +15,10 @@ A new flutter plugin project.
   s.source_files = 'Classes/**/*'
   s.public_header_files = 'Classes/**/*.h'
   s.dependency 'Flutter'
+  s.static_framework = true
+  s.libraries = 'c++'
+  s.ios.frameworks = %w(AVFoundation GLKit CoreLocation MediaPlayer ExternalAccessory AudioToolbox)
+  s.vendored_library = 'Classes/SDK/libibox.pro.sdk.external.a'
 
   s.ios.deployment_target = '8.0'
 end
-
