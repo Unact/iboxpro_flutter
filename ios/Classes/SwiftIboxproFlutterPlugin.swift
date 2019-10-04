@@ -78,16 +78,6 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     }
   }
 
-  public func searchBTDevice(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let readerType = PaymentControllerReaderType(
-      rawValue: PaymentControllerReaderType.RawValue(params["readerType"] as! Int)
-    )
-
-    paymentController.setReaderType(readerType)
-    paymentController.search4BTReaders(with: readerType)
-  }
-
   public func setRequestTimeout(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let timeout = params["timeout"] as! Double
@@ -120,6 +110,20 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     paymentController.enable()
   }
 
+  public func startSearchBTDevice(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let readerType = PaymentControllerReaderType(
+      rawValue: PaymentControllerReaderType.RawValue(params["readerType"] as! Int)
+    )
+
+    paymentController.setReaderType(readerType)
+    paymentController.search4BTReaders(with: readerType)
+  }
+
+  public func stopSearchBTDevice(_ call: FlutterMethodCall) {
+    paymentController.stopSearch4BTReaders()
+  }
+
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "adjustPayment":
@@ -131,14 +135,17 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     case "login":
       login(call)
       return result(nil)
-    case "searchBTDevice":
-      searchBTDevice(call)
-      return result(nil)
     case "setRequestTimeout":
       setRequestTimeout(call)
       return result(nil)
     case "startPayment":
       startPayment(call)
+      return result(nil)
+    case "startSearchBTDevice":
+      startSearchBTDevice(call)
+      return result(nil)
+    case "stopSearchBTDevice":
+      stopSearchBTDevice(call)
       return result(nil)
     default:
       return result(FlutterMethodNotImplemented)

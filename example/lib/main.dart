@@ -34,13 +34,7 @@ class _PaymentExample extends State<PaymentExample> {
   String _paymentProgressText = 'Оплата не проводилась';
   int _timeout = 30;
   double _amount = 50;
-  SignaturePadController _padController;
-
-  @override
-  void initState() {
-    super.initState();
-    _padController = SignaturePadController();
-  }
+  SignaturePadController _padController = SignaturePadController();
 
   void _showSnackBar(String content) {
     _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(content)));
@@ -119,20 +113,21 @@ class _PaymentExample extends State<PaymentExample> {
       RaisedButton(
         child: Text('Подключиться к терминалу'),
         onPressed: () async {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) => Center(child: CircularProgressIndicator())
-          );
-
-          await PaymentController.searchBTDevice(
+          await PaymentController.startSearchBTDevice(
             readerType: ReaderType.P17,
             onReaderSetBTDevice: (val) async {
-              Navigator.pop(context);
               _showSnackBar('Успешно установлена связь с терминалом');
             }
           );
         },
       ),
+      RaisedButton(
+        child: Text('Перестать искать терминал'),
+        onPressed: () async {
+          await PaymentController.stopSearchBTDevice();
+          _showSnackBar('Поиск отключен');
+        },
+      )
     ];
   }
 
@@ -238,15 +233,7 @@ class _PaymentExample extends State<PaymentExample> {
         child: SizedBox(
           height: 200,
           width: 200,
-          child: SignaturePadWidget(
-            _padController,
-            SignaturePadOptions(
-              dotSize: 5.0,
-              minWidth: 1.0,
-              maxWidth: 3.0,
-              penColor: "#000000"
-            )
-          )
+          child: SignaturePadWidget(_padController, SignaturePadOptions(dotSize: 5.0, penColor: "#000000"))
         )
       )
     ];

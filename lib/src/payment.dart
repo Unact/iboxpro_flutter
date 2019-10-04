@@ -117,22 +117,27 @@ class PaymentController {
   /// [onReaderSetBTDevice] вызывается по завершению операции с результатом операции
   ///
   /// Важно: Всегда выбирает первый найденный терминал
-  static Future<void> searchBTDevice({
+  static Future<void> startSearchBTDevice({
     @required int readerType,
     Function(Map<dynamic, dynamic>) onReaderSetBTDevice
   }) async {
     _onReaderSetBTDevice = onReaderSetBTDevice;
 
-    await _channel.invokeMethod('searchBTDevice', {
+    await _channel.invokeMethod('startSearchBTDevice', {
       'readerType': readerType
     });
+  }
+
+  /// Завершает операцию поиска терминала
+  static Future<void> stopSearchBTDevice() async {
+    await _channel.invokeMethod('stopSearchBTDevice');
   }
 
   /// Устанавливает таймаут для операций с АПИ iboxpro
   static Future<void> setRequestTimeout({
     @required int timeout
   }) async {
-    await _channel.invokeMethod('setRequestTimeout', {
+    await _channel.invokeMethod('stopSearchBTDevice', {
       'timeout': timeout
     });
   }
