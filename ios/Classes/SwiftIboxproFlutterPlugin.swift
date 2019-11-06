@@ -2,6 +2,7 @@ import Flutter
 import UIKit
 
 public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
+  private static let apiError = -1
   private let methodChannel: FlutterMethodChannel
   private let paymentControllerDelegate: IboxproFlutterDelegate
   private let paymentController: PaymentController
@@ -34,9 +35,9 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
         signature: (params["signature"] as! FlutterStandardTypedData).data,
         receiptEmail: params["receiptEmail"] as? String,
         receiptPhone: params["receiptPhone"] as? String
-        )!
+        )
       let arguments = [
-        "errorCode": Int(res.errorCode())
+        "errorCode": res != nil ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
       ]
 
       self.methodChannel.invokeMethod("onPaymentAdjust", arguments: arguments)
@@ -47,14 +48,14 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     let params = call.arguments as! [String: Any]
 
     DispatchQueue.global(qos: .background).async {
-      let res = self.paymentController.history(withTransactionID: (params["trId"] as! String))!
-      let errorCode = Int(res.errorCode())
+      let res = self.paymentController.history(withTransactionID: (params["trId"] as! String))
+      let errorCode = res != nil ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
       var arguments = [
         "errorCode": errorCode
         ] as [String:Any]
 
       if errorCode == 0 {
-        let transactionItem = res.transactions().first as! TransactionItem
+        let transactionItem = res!.transactions().first as! TransactionItem
         let formattedData = SwiftIboxproFlutterPlugin.formatTransactionItem(transactionItem)
 
         arguments.merge(formattedData) { (current, _) in current }
@@ -69,9 +70,9 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
     DispatchQueue.global(qos: .background).async {
       self.paymentController.setEmail((params["email"] as! String), password: (params["password"] as! String))
-      let res = self.paymentController.authentication()!
+      let res = self.paymentController.authentication()
       let arguments = [
-        "errorCode": Int(res.errorCode())
+        "errorCode": res != nil ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
       ]
 
       self.methodChannel.invokeMethod("onLogin", arguments: arguments)
@@ -153,7 +154,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
   }
 
   public static func formatTransactionItem(_ transactionItem: TransactionItem) -> [String:Any] {
-    let card = transactionItem.card()!
+    let card = transactionItem.card()
 
     return [
       "id": transactionItem.id(),
@@ -181,11 +182,11 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       "reverseMode": Int(transactionItem.reverseMode().rawValue),
       "acquirerID": transactionItem.acquirerID(),
       "card": [
-        "iin": card.iin(),
-        "expiration": card.expiration(),
-        "panMasked": card.panMasked(),
-        "panEnding": card.panEnding(),
-        "binID": card.binID()
+        "iin": card?.iin(),
+        "expiration": card?.expiration(),
+        "panMasked": card?.panMasked(),
+        "panEnding": card?.panEnding(),
+        "binID": card?.binID()
       ]
     ]
   }
