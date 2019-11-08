@@ -86,6 +86,13 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     paymentController.setRequestTimeOut(timeout)
   }
 
+  public func setSingleStepAuthentication(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let enabled = params["enabled"] as! Bool
+
+    paymentController.setSingleStepAuthentication(enabled)
+  }
+
   public func startPayment(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let currencyType = CurrencyType(
@@ -138,6 +145,9 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       return result(nil)
     case "setRequestTimeout":
       setRequestTimeout(call)
+      return result(nil)
+    case "setSingleStepAuthentication":
+      setSingleStepAuthentication(call)
       return result(nil)
     case "startPayment":
       startPayment(call)

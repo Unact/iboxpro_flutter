@@ -137,8 +137,17 @@ class PaymentController {
   static Future<void> setRequestTimeout({
     @required int timeout
   }) async {
-    await _channel.invokeMethod('stopSearchBTDevice', {
+    await _channel.invokeMethod('setRequestTimeout', {
       'timeout': timeout
+    });
+  }
+
+  /// Устанавливает признак однофакторной авторизации для операций с АПИ iboxpro
+  static Future<void> setSingleStepAuthentication({
+    @required bool enabled
+  }) async {
+    await _channel.invokeMethod('setSingleStepAuthentication', {
+      'enabled': enabled
     });
   }
 

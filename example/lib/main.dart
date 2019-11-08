@@ -30,6 +30,7 @@ class _PaymentExample extends State<PaymentExample> {
   String _loginEmail = '';
   String _password = '';
   String _trId;
+  bool _singleStepAuth = false;
   bool _requiredSignature = false;
   String _paymentProgressText = 'Оплата не проводилась';
   int _timeout = 30;
@@ -101,6 +102,25 @@ class _PaymentExample extends State<PaymentExample> {
                 await PaymentController.setRequestTimeout(timeout: _timeout);
                 _showSnackBar('Таймаут установлен');
               },
+            )
+          )
+        ]
+      )
+    ];
+  }
+
+  List<Widget> _buildSingleStepAuthenticationPart(BuildContext context) {
+    return [
+      Row(
+        children: <Widget>[
+          Expanded(
+            child: RaisedButton(
+              child: Text('Установить авторизацию'),
+              onPressed: () async {
+                _singleStepAuth = !_singleStepAuth;
+                await PaymentController.setSingleStepAuthentication(enabled: _singleStepAuth);
+                _showSnackBar('Однофакторная авторизация ${_singleStepAuth ? 'включена' : 'выключена'}');
+              }
             )
           )
         ]
@@ -290,6 +310,7 @@ class _PaymentExample extends State<PaymentExample> {
           padding: EdgeInsets.all(8),
           children: _buildLoginPart(context)
             ..addAll(_buildTimeoutPart(context))
+            ..addAll(_buildSingleStepAuthenticationPart(context))
             ..addAll(_buildSearchDevicePart(context))
             ..addAll(_buildPaymentPart(context))
             ..addAll(_buildPaymentSignaturePart(context))
