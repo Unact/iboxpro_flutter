@@ -46,14 +46,14 @@ class _PaymentExample extends State<PaymentExample> {
         initialValue: _loginEmail,
         maxLines: 1,
         decoration: InputDecoration(labelText: 'Логин'),
-        onFieldSubmitted: (val) => _loginEmail = val
+        onChanged: (val) => _loginEmail = val
       ),
       TextFormField(
         initialValue: _password,
         obscureText: true,
         maxLines: 1,
         decoration: InputDecoration(labelText: 'Пароль'),
-        onFieldSubmitted: (val) => _password = val
+        onChanged: (val) => _password = val
       ),
       RaisedButton(
         child: Text('Войти'),
@@ -90,7 +90,7 @@ class _PaymentExample extends State<PaymentExample> {
               initialValue: _timeout.toString(),
               maxLines: 1,
               decoration: InputDecoration(labelText: 'Таймаут'),
-              onFieldSubmitted: (val) => _timeout = int.tryParse(val)
+              onChanged: (val) => _timeout = int.tryParse(val)
             )
           ),
           SizedBox(
@@ -140,7 +140,7 @@ class _PaymentExample extends State<PaymentExample> {
               maxLines: 1,
               decoration: InputDecoration(labelText: 'Сумма оплаты'),
               initialValue: _amount.toString(),
-              onFieldSubmitted: (val) => _amount = double.tryParse(val),
+              onChanged: (val) => _amount = double.tryParse(val),
             )
           ),
           SizedBox(
@@ -148,7 +148,10 @@ class _PaymentExample extends State<PaymentExample> {
             child: RaisedButton(
               child: Text('Оплатить'),
               onPressed: () async {
-                _paymentProgressText = 'Ожидание';
+                setState(() {
+                  _trId = null;
+                  _paymentProgressText = 'Ожидание';
+                });
 
                 showDialog(
                   context: context,
@@ -157,7 +160,7 @@ class _PaymentExample extends State<PaymentExample> {
 
                 await PaymentController.startPayment(
                   amount: _amount,
-                  inputType: InputType.Swipe,
+                  inputType: InputType.NFC,
                   currencyType: CurrencyType.RUB,
                   description: 'Тестовая оплата',
                   onPaymentError: (val) {
@@ -168,6 +171,7 @@ class _PaymentExample extends State<PaymentExample> {
                   },
                   onPaymentStart: (val) {
                     setState(() {
+                      _trId = val['id'];
                       _paymentProgressText = 'Начало операции оплаты';
                     });
                   },
@@ -197,7 +201,9 @@ class _PaymentExample extends State<PaymentExample> {
           children: <Widget>[
             Text('Статус оплаты'),
             SizedBox(height: 10),
-            Text(_paymentProgressText, style: TextStyle(fontWeight: FontWeight.bold))
+            Text(_paymentProgressText, style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            _trId != null ? Text('ID: $_trId') : Container()
           ]
         )
       )
@@ -205,7 +211,7 @@ class _PaymentExample extends State<PaymentExample> {
   }
 
   List<Widget> _buildPaymentSignaturePart(BuildContext context) {
-    if (_trId == null || !_requiredSignature)
+    if (!_requiredSignature)
       return [Container()];
 
     return [
@@ -222,7 +228,14 @@ class _PaymentExample extends State<PaymentExample> {
             signature: await _padController.toPng(),
             onPaymentAdjust: (Map<dynamic, dynamic> result) {
               Navigator.pop(context);
-              _showSnackBar(result['errorCode'] == 0 ? 'Подпись добавлена' : 'Произошла ошибка');
+              if (result['errorCode'] == 0) {
+                _showSnackBar('Подпись добавлена');
+                setState(() {
+                  _requiredSignature = false;
+                });
+              } else {
+                _showSnackBar('Произошла ошибка');
+              }
             }
           );
       }),
