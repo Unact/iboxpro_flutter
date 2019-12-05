@@ -58,6 +58,7 @@ class PaymentController {
     @required int inputType,
     @required int currencyType,
     @required String description,
+    bool singleStepAuth = false,
     String receiptEmail,
     String receiptPhone,
     Function(Map<dynamic, dynamic>) onPaymentStart,
@@ -75,6 +76,7 @@ class PaymentController {
       'inputType': inputType,
       'currencyType': currencyType,
       'description': description,
+      'singleStepAuth': singleStepAuth,
       'receiptEmail': receiptEmail,
       'receiptPhone': receiptPhone
     });
@@ -139,15 +141,6 @@ class PaymentController {
   }) async {
     await _channel.invokeMethod('setRequestTimeout', {
       'timeout': timeout
-    });
-  }
-
-  /// Устанавливает признак однофакторной авторизации для операций с АПИ iboxpro
-  static Future<void> setSingleStepAuthentication({
-    @required bool enabled
-  }) async {
-    await _channel.invokeMethod('setSingleStepAuthentication', {
-      'enabled': enabled
     });
   }
 
