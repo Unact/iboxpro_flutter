@@ -37,7 +37,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
         receiptPhone: params["receiptPhone"] as? String
         )
       let arguments = [
-        "errorCode": res != nil ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
+        "errorCode": res != nil && res!.valid() ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
       ]
 
       self.methodChannel.invokeMethod("onPaymentAdjust", arguments: arguments)
@@ -49,7 +49,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
     DispatchQueue.global(qos: .background).async {
       let res = self.paymentController.history(withTransactionID: (params["trId"] as! String))
-      let errorCode = res != nil ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
+      let errorCode = res != nil && res!.valid() ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
       var arguments = [
         "errorCode": errorCode
         ] as [String:Any]
@@ -72,7 +72,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       self.paymentController.setEmail((params["email"] as! String), password: (params["password"] as! String))
       let res = self.paymentController.authentication()
       let arguments = [
-        "errorCode": res != nil ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
+        "errorCode": res != nil && res!.valid() ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
       ]
 
       self.methodChannel.invokeMethod("onLogin", arguments: arguments)
