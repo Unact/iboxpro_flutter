@@ -35,7 +35,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
         signature: (params["signature"] as! FlutterStandardTypedData).data,
         receiptEmail: params["receiptEmail"] as? String,
         receiptPhone: params["receiptPhone"] as? String
-        )
+      )
       let arguments = [
         "errorCode": res != nil && res!.valid() ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
       ]
@@ -222,10 +222,10 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       methodChannel.invokeMethod("onPaymentComplete", arguments: arguments)
     }
 
-    public func paymentControllerError(_ error: PaymentControllerErrorType, message: String!) {
+    public func paymentControllerError(_ error: PaymentControllerErrorType, message: String?) {
       let arguments: [String:Any] = [
         "errorType": Int(error.rawValue),
-        "errorMessage": message
+        "errorMessage": message != nil ? message! : ""
       ]
 
       paymentController.disable()
