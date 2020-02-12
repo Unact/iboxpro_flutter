@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - iboxpro_flutter (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `Flutter`)
+  - iboxpro_flutter (from `.symlinks/plugins/iboxpro_flutter/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: Flutter
+  iboxpro_flutter:
+    :path: ".symlinks/plugins/iboxpro_flutter/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  iboxpro_flutter: fe944bd0a3f50fa4f18a7c633ead63603611016d
+
+PODFILE CHECKSUM: 083258d7f5e80b42ea9bfee905fe93049bc04c64
+
+COCOAPODS: 1.6.1
