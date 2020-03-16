@@ -115,8 +115,8 @@ class _PaymentExample extends State<PaymentExample> {
         onPressed: () async {
           await PaymentController.startSearchBTDevice(
             readerType: ReaderType.P17,
-            onReaderSetBTDevice: (val) async {
-              _showSnackBar('Успешно установлена связь с терминалом');
+            onReaderSetBTDevice: (Map<dynamic, dynamic> val) async {
+              _showSnackBar('Успешно установлена связь с терминалом ${val['deviceId']} - ${val['deviceName']}');
             }
           );
         },

@@ -242,13 +242,17 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     public func paymentControllerRequestBTDevice(_ devices: [Any]!) {
-      let device = (devices as! [BTDevice]).first
+      let device = (devices as! [BTDevice]).first!
+      let arguments: [String:String] = [
+        "deviceId": device.id(),
+        "deviceName": device.name()
+      ]
 
       paymentController.setBTDevice(device)
       paymentController.save(device)
       paymentController.stopSearch4BTReaders()
 
-      methodChannel.invokeMethod("onReaderSetBTDevice", arguments: nil)
+      methodChannel.invokeMethod("onReaderSetBTDevice", arguments: arguments)
     }
 
     public func paymentControllerRequestCardApplication(_ applications: [Any]!) {}
