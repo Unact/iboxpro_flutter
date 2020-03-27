@@ -242,10 +242,10 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     public func paymentControllerRequestBTDevice(_ devices: [Any]!) {
-      let device = (devices as! [BTDevice]).first!
-      let arguments: [String:String] = [
-        "deviceId": device.id(),
-        "deviceName": device.name()
+      let device = (devices as! [BTDevice]).first
+      let arguments: [String:String?] = [
+        "deviceId": device?.id(),
+        "deviceName": device?.name()
       ]
 
       paymentController.setBTDevice(device)
