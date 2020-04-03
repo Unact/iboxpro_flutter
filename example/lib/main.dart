@@ -127,19 +127,6 @@ class _PaymentExample extends State<PaymentExample> {
           await PaymentController.stopSearchBTDevice();
           _showSnackBar('Поиск отключен');
         },
-      ),
-      RaisedButton(
-        child: Text('Получить информацию о терминале'),
-        onPressed: () async {
-          Map<dynamic, dynamic> val = await PaymentController.getBTDevice();
-
-          if (val['deviceId'] == null) {
-            _showSnackBar('Терминал ранее не выбирался');
-            return;
-          }
-
-          _showSnackBar('Терминал ${val['deviceId']} - ${val['deviceName']}');
-        },
       )
     ];
   }
