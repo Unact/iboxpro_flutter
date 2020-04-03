@@ -116,7 +116,7 @@ class _PaymentExample extends State<PaymentExample> {
           await PaymentController.startSearchBTDevice(
             readerType: ReaderType.P17,
             onReaderSetBTDevice: (Map<dynamic, dynamic> val) async {
-              _showSnackBar('Успешно установлена связь с терминалом ${val['deviceId']} - ${val['deviceName']}');
+              _showSnackBar('Успешно установлена связь с терминалом');
             }
           );
         },
@@ -126,6 +126,19 @@ class _PaymentExample extends State<PaymentExample> {
         onPressed: () async {
           await PaymentController.stopSearchBTDevice();
           _showSnackBar('Поиск отключен');
+        },
+      ),
+      RaisedButton(
+        child: Text('Получить информацию о терминале'),
+        onPressed: () async {
+          Map<dynamic, dynamic> val = await PaymentController.getBTDevice();
+
+          if (val['deviceId'] == null) {
+            _showSnackBar('Терминал ранее не выбирался');
+            return;
+          }
+
+          _showSnackBar('Терминал ${val['deviceId']} - ${val['deviceName']}');
         },
       )
     ];

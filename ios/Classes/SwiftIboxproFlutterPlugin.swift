@@ -44,6 +44,16 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     }
   }
 
+  public func getBTDevice(_ call: FlutterMethodCall) -> [String:String?] {
+    let savedDevice = paymentControllerDelegate.savedDevice
+    let arguments: [String:String?] = [
+      "deviceId": savedDevice?.id(),
+      "deviceName": savedDevice?.name()
+    ]
+
+    return arguments
+  }
+
   public func info(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
 
@@ -132,6 +142,8 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     case "adjustPayment":
       adjustPayment(call)
       return result(nil)
+    case "getBTDevice":
+      return result(getBTDevice(call))
     case "info":
       info(call)
       return result(nil)
@@ -196,6 +208,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
   internal class IboxproFlutterDelegate: NSObject, PaymentControllerDelegate {
     private let methodChannel: FlutterMethodChannel
     private let paymentController: PaymentController
+    public var savedDevice: BTDevice?
 
     public required init(methodChannel: FlutterMethodChannel, paymentController: PaymentController) {
       self.methodChannel = methodChannel
@@ -243,15 +256,14 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
     public func paymentControllerRequestBTDevice(_ devices: [Any]!) {
       let device = (devices as! [BTDevice]).first
-      let arguments: [String:String?] = [
-        "deviceName": device?.name()
-      ]
 
       paymentController.setBTDevice(device)
       paymentController.save(device)
       paymentController.stopSearch4BTReaders()
 
-      methodChannel.invokeMethod("onReaderSetBTDevice", arguments: arguments)
+      savedDevice = device
+
+      methodChannel.invokeMethod("onReaderSetBTDevice", arguments: nil)
     }
 
     public func paymentControllerRequestCardApplication(_ applications: [Any]!) {}

@@ -101,6 +101,11 @@ class PaymentController {
     });
   }
 
+  /// Возвращает текущий выбранный терминал
+  static Future<Map<dynamic, dynamic>> getBTDevice() async {
+    return await _channel.invokeMethod('getBTDevice');
+  }
+
   /// Начинает операцию по получению информации об оплате
   ///
   /// [onInfo] вызывается по завершению операции с результатом операции
