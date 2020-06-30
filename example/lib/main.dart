@@ -184,6 +184,11 @@ class _PaymentExample extends State<PaymentExample> {
                   },
                   onReaderEvent: (val) {
                     setState(() {
+                      if (val['readerEventType'] == ReaderEventType.Disconnected) {
+                        Navigator.pop(context);
+                        PaymentController.cancel();
+                      }
+
                       _paymentProgressText = 'Состояние терминала - ${val['readerEventType']}';
                     });
                   },

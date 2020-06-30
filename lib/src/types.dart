@@ -105,6 +105,8 @@ class ReaderEventType {
       case AndroidReaderEventType.Connected:
         return Connected;
         break;
+      case AndroidReaderEventType.InitFailed:
+      case AndroidReaderEventType.PaymentCanceled:
       case AndroidReaderEventType.Disconnected:
         return Disconnected;
         break;

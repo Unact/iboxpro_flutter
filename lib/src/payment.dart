@@ -150,21 +150,18 @@ class PaymentController {
       case 'onLogin':
         if (_onLogin != null) {
           _onLogin(call.arguments);
-          _onLogin = null;
         }
 
         break;
       case 'onInfo':
         if (_onInfo != null) {
           _onInfo(call.arguments);
-          _onInfo = null;
         }
 
         break;
       case 'onPaymentStart':
         if (_onPaymentStart != null) {
           _onPaymentStart(call.arguments);
-          _onPaymentStart = null;
         }
 
         break;
@@ -176,28 +173,24 @@ class PaymentController {
             ErrorType.fromIosType(arguments['nativeErrorType']);
 
           _onPaymentError(call.arguments);
-          _onPaymentError = null;
         }
 
         break;
       case 'onPaymentComplete':
         if (_onPaymentComplete != null) {
           _onPaymentComplete(call.arguments);
-          _onPaymentComplete = null;
         }
 
         break;
       case 'onPaymentAdjust':
         if (_onPaymentAdjust != null) {
           _onPaymentAdjust(call.arguments);
-          _onPaymentAdjust = null;
         }
 
         break;
       case 'onReaderSetBTDevice':
         if (_onReaderSetBTDevice != null) {
           _onReaderSetBTDevice(call.arguments);
-          _onReaderSetBTDevice = null;
         }
 
         break;
@@ -209,7 +202,6 @@ class PaymentController {
             ReaderEventType.fromIosType(arguments['nativeReaderEventType']);
 
           _onReaderEvent(call.arguments);
-          _onReaderEvent = null;
         }
 
         break;
