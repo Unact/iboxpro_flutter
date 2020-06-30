@@ -1,17 +1,19 @@
 # iboxpro_flutter
 
 Flutter плагин для работы с библиотекой [iboxpro](https://www.2can.ru/developer).
-__Работает только на ios__
-
 Этот проект использует библиотеку iboxpro, которая является собственностью 2can.
 
 ## Предварительные настройки
 
 1. Получить логин и пароль на [сайте](https://www.2can.ru)
 2. Указать `version` в `pubspec.yaml`. Апи iboxpro отправляет версию, если ее не указать, то приложение упадет
-3. Указать в `Info.plist`
+3. Настроить нативные среды
 
-```info
+### iOS
+
+Указать в `Info.plist`
+
+```xml
     <key>NSAppTransportSecurity</key>
     <dict>
         <key>NSAllowsArbitraryLoads</key>
@@ -22,13 +24,42 @@ __Работает только на ios__
         <string>external-accessory</string>
         <string>bluetooth-central</string>
     </array>
-    <key>NSLocationUsageDescription</key>
-    <string>Used for iBoxPro</string>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string>Used for iBoxPro</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Used for iBoxPro</string>
 ```
 
+Для полного функционала также указать
+
+```xml
+    <key>NSLocationUsageDescription</key>
+    <string>Used for iBoxPro</string>
+    <key>NSLocationAlwaysUsageDescription</key>
+    <string>Used for iBoxPro</string>
+```
+
+### Android
+
+Указать в `AndroidManifest.xml`
+
+```xml
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+```
+
+Для полного функционала также указать
+
+```xml
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.ACTION_HEADSET_PLUG" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+```
+
 После этого плагин можно использовать в приложении.
-Для примера использования можно посмотреть приложение-пример.
+Использование плагина можно посмотреть в приложении-пример.

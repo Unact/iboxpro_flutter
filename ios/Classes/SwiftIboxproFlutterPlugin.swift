@@ -54,7 +54,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
         "errorCode": errorCode
         ] as [String:Any]
 
-      if errorCode == 0 {
+      if (errorCode == 0 && !res!.transactions()!.isEmpty) {
         let transactionItem = res!.transactions().first as! TransactionItem
         let formattedData = SwiftIboxproFlutterPlugin.formatTransactionItem(transactionItem)
 
@@ -88,9 +88,6 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
   public func startPayment(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let currencyType = CurrencyType(
-      rawValue: CurrencyType.RawValue(params["currencyType"] as! Int)
-    )
     let inputType = TransactionInputType(
       rawValue: TransactionInputType.RawValue(params["inputType"] as! Int)
     )
@@ -102,7 +99,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     let ctx = PaymentContext.init()
 
     ctx.inputType = inputType
-    ctx.currency = currencyType
+    ctx.currency = CurrencyType_RUB
     ctx.amount = amount
     ctx.description = description
     ctx.receiptMail = email
@@ -113,17 +110,14 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     paymentController.setSingleStepAuthentication(singleStepAuth)
   }
 
-  public func startSearchBTDevice(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let readerType = PaymentControllerReaderType(
-      rawValue: PaymentControllerReaderType.RawValue(params["readerType"] as! Int)
-    )
+  public func startSearchBTDevice() {
+    let readerType = PaymentControllerReaderType_P17
 
     paymentController.setReaderType(readerType)
     paymentController.search4BTReaders(with: readerType)
   }
 
-  public func stopSearchBTDevice(_ call: FlutterMethodCall) {
+  public func stopSearchBTDevice() {
     paymentController.stopSearch4BTReaders()
   }
 
@@ -145,10 +139,10 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       startPayment(call)
       return result(nil)
     case "startSearchBTDevice":
-      startSearchBTDevice(call)
+      startSearchBTDevice()
       return result(nil)
     case "stopSearchBTDevice":
-      stopSearchBTDevice(call)
+      stopSearchBTDevice()
       return result(nil)
     default:
       return result(FlutterMethodNotImplemented)
@@ -165,8 +159,6 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       "currencyID": transactionItem.currencyID(),
       "descriptionOfTransaction": transactionItem.descriptionOfTransaction(),
       "stateDisplay": transactionItem.stateDisplay(),
-      "stateLine1": transactionItem.stateLine1(),
-      "stateLine2": transactionItem.stateLine2(),
       "invoice": transactionItem.invoice(),
       "approvalCode": transactionItem.approvalCode(),
       "operation": transactionItem.operation(),
@@ -224,7 +216,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
     public func paymentControllerError(_ error: PaymentControllerErrorType, message: String?) {
       let arguments: [String:Any] = [
-        "errorType": Int(error.rawValue),
+        "nativeErrorType": Int(error.rawValue),
         "errorMessage": message != nil ? message! : ""
       ]
 
@@ -235,7 +227,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
     public func paymentControllerReaderEvent(_ event: PaymentControllerReaderEventType) {
       let arguments: [String:Int] = [
-        "readerEventType": Int(event.rawValue)
+        "nativeReaderEventType": Int(event.rawValue)
       ]
 
       methodChannel.invokeMethod("onReaderEvent", arguments: arguments)

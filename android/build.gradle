@@ -37,8 +37,14 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+    }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation fileTree(include: ['*.aar'], dir: 'libs')
 }

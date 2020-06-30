@@ -114,7 +114,6 @@ class _PaymentExample extends State<PaymentExample> {
         child: Text('Подключиться к терминалу'),
         onPressed: () async {
           await PaymentController.startSearchBTDevice(
-            readerType: ReaderType.P17,
             onReaderSetBTDevice: (Map<dynamic, dynamic> val) async {
               _showSnackBar('Успешно установлена связь с терминалом');
             }
@@ -161,7 +160,6 @@ class _PaymentExample extends State<PaymentExample> {
                 await PaymentController.startPayment(
                   amount: _amount,
                   inputType: InputType.NFC,
-                  currencyType: CurrencyType.RUB,
                   description: 'Тестовая оплата',
                   singleStepAuth: true,
                   onPaymentError: (val) {

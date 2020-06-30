@@ -1,6 +1,7 @@
 import 'types.dart';
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
@@ -40,8 +41,6 @@ class PaymentController {
   ///
   /// [inputType] вид оплаты, все возможные значения в [InputType]
   ///
-  /// [currencyType] вид валют, все возможные значения в [CurrencyType]
-  ///
   /// [onPaymentStart] вызывается когда началась оплата с карты (установлена успешная связь между картой и терминалом)
   ///
   /// [onPaymentError] вызывается при любой ошибке оплаты
@@ -56,7 +55,6 @@ class PaymentController {
   static Future<void> startPayment({
     @required double amount,
     @required int inputType,
-    @required int currencyType,
     @required String description,
     bool singleStepAuth = false,
     String receiptEmail,
@@ -74,7 +72,6 @@ class PaymentController {
     await _channel.invokeMethod('startPayment', {
       'amount': amount,
       'inputType': inputType,
-      'currencyType': currencyType,
       'description': description,
       'singleStepAuth': singleStepAuth,
       'receiptEmail': receiptEmail,
@@ -120,14 +117,11 @@ class PaymentController {
   ///
   /// Важно: Всегда выбирает первый найденный терминал
   static Future<void> startSearchBTDevice({
-    @required int readerType,
     Function(Map<dynamic, dynamic>) onReaderSetBTDevice
   }) async {
     _onReaderSetBTDevice = onReaderSetBTDevice;
 
-    await _channel.invokeMethod('startSearchBTDevice', {
-      'readerType': readerType
-    });
+    await _channel.invokeMethod('startSearchBTDevice');
   }
 
   /// Завершает операцию поиска терминала
@@ -169,6 +163,11 @@ class PaymentController {
         break;
       case 'onPaymentError':
         if (_onPaymentError != null) {
+          Map<dynamic, dynamic> arguments = call.arguments;
+          arguments['errorType'] = Platform.isAndroid ?
+            ErrorType.fromAndroidType(arguments['nativeErrorType']) :
+            ErrorType.fromIosType(arguments['nativeErrorType']);
+
           _onPaymentError(call.arguments);
           _onPaymentError = null;
         }
@@ -197,6 +196,11 @@ class PaymentController {
         break;
       case 'onReaderEvent':
         if (_onReaderEvent != null) {
+          Map<dynamic, dynamic> arguments = call.arguments;
+          arguments['readerEventType'] = Platform.isAndroid ?
+            ReaderEventType.fromAndroidType(arguments['nativeReaderEventType']) :
+            ReaderEventType.fromIosType(arguments['nativeReaderEventType']);
+
           _onReaderEvent(call.arguments);
           _onReaderEvent = null;
         }
