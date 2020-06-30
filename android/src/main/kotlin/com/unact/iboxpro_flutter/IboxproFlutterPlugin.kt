@@ -107,6 +107,10 @@ class IboxproFlutterPlugin: MethodCallHandler {
     methodChannel.invokeMethod("onPaymentAdjust", arguments)
   }
 
+  private fun cancel() {
+    paymentController.disable()
+  }
+
   private fun info(call: MethodCall) {
     val params = call.arguments as HashMap<String, Any>
     val res = paymentController.getTransactionByID(currentActivity, params["trId"] as String)
@@ -176,6 +180,10 @@ class IboxproFlutterPlugin: MethodCallHandler {
     when (call.method) {
       "adjustPayment" -> {
         adjustPayment(call)
+        result.success(null)
+      }
+      "cancel" -> {
+        cancel()
         result.success(null)
       }
       "info" -> {

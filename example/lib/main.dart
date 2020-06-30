@@ -154,7 +154,15 @@ class _PaymentExample extends State<PaymentExample> {
 
                 showDialog(
                   context: context,
-                  builder: (BuildContext context) => Center(child: CircularProgressIndicator())
+                  builder: (BuildContext context) {
+                    return Material(
+                      type: MaterialType.transparency,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: _buildProgressPart()
+                      )
+                    );
+                  }
                 );
 
                 await PaymentController.startPayment(
@@ -274,6 +282,29 @@ class _PaymentExample extends State<PaymentExample> {
           );
         }
       )
+    ];
+  }
+
+  List<Widget> _buildProgressPart() {
+    return [
+      CircularProgressIndicator(
+        backgroundColor: Colors.white70,
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
+      ),
+      Container(height: 40),
+      Container(height: 40),
+      Container(
+        height: 32,
+        child: RaisedButton(
+          child: Text('Отмена'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+          onPressed: () async {
+            await PaymentController.cancel();
+            Navigator.pop(context);
+          }
+        )
+      ),
+      Container(height: 40)
     ];
   }
 

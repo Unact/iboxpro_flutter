@@ -111,6 +111,13 @@ class PaymentController {
     });
   }
 
+  /// Прерывает операцию принятия оплаты терминалом
+  ///
+  /// [onInfo] вызывается по завершению операции с результатом операции
+  static Future<void> cancel() async {
+    await _channel.invokeMethod('cancel');
+  }
+
   /// Начинает операцию поиска терминала
   ///
   /// [onReaderSetBTDevice] вызывается по завершению операции с результатом операции

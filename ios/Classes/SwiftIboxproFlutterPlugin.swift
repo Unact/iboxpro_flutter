@@ -44,6 +44,10 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     }
   }
 
+  public func cancel() {
+    self.paymentController.disable()
+  }
+
   public func info(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
 
@@ -125,6 +129,9 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     switch call.method {
     case "adjustPayment":
       adjustPayment(call)
+      return result(nil)
+    case "cancel":
+      cancel()
       return result(nil)
     case "info":
       info(call)
