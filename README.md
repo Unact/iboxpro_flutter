@@ -1,6 +1,6 @@
 # iboxpro_flutter
 
-Flutter плагин для работы с библиотекой [iboxpro](https://www.2can.ru/developer).
+Flutter плагин для работы с библиотекой [iboxpro](https://www.2can.ru/developer).  
 Этот проект использует библиотеку iboxpro, которая является собственностью 2can.
 
 ## Предварительные настройки
@@ -61,5 +61,5 @@ Flutter плагин для работы с библиотекой [iboxpro](htt
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 ```
 
-После этого плагин можно использовать в приложении.
+После этого плагин можно использовать в приложении.  
 Использование плагина можно посмотреть в приложении-пример.
