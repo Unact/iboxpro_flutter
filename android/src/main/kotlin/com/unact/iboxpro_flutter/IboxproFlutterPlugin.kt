@@ -50,7 +50,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
       result["id"] = transactionItem.id
       result["emvData"] = transactionItem.emvData
       result["date"] = transactionItem.date.toString()
-      result["currencyId"] = transactionItem.currencyId
+      result["currencyID"] = transactionItem.currencyId
       result["descriptionOfTransaction"] = transactionItem.description
       result["stateDisplay"] = transactionItem.stateDisplay
       result["invoice"] = transactionItem.invoice
@@ -64,12 +64,13 @@ class IboxproFlutterPlugin: MethodCallHandler {
       result["latitude"] = transactionItem.latitude
       result["longitude"] = transactionItem.longitude
       result["state"] = transactionItem.state
-      result["state"] = transactionItem.state
+      result["subState"] = transactionItem.json["Substate"]
       result["inputType"] = transactionItem.inputType.value
       result["displayMode"] = transactionItem.displayMode.ordinal
+      result["reverseMode"] = transactionItem.json["ReverseMode"]
       result["acquirerID"] = transactionItem.json["AcquirerID"]
       result["card"] = resultCard
-      resultCard["inn"] = card?.iin
+      resultCard["iin"] = card?.iin
       resultCard["expiration"] = card?.exp
       resultCard["panMasked"] = card?.panMasked
       resultCard["panEnding"] = card?.panEnding
