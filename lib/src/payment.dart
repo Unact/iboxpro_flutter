@@ -16,7 +16,7 @@ class PaymentController {
   static Function(Map<dynamic, dynamic>) _onPaymentStart;
   static Function(Map<dynamic, dynamic>) _onPaymentError;
   static Function(Map<dynamic, dynamic>) _onPaymentComplete;
-  static Function(Map<dynamic, dynamic>) _onReaderSetBTDevice;
+  static Function() _onReaderSetBTDevice;
   static Function(Map<dynamic, dynamic>) _onReaderEvent;
   static Function(Map<dynamic, dynamic>) _onLogin;
   static Function(Map<dynamic, dynamic>) _onInfo;
@@ -122,13 +122,16 @@ class PaymentController {
   ///
   /// [onReaderSetBTDevice] вызывается по завершению операции с результатом операции
   ///
-  /// Важно: Всегда выбирает первый найденный терминал
+  /// Важно: [iOS] Всегда выбирает первый найденный терминал
   static Future<void> startSearchBTDevice({
-    Function(Map<dynamic, dynamic>) onReaderSetBTDevice
+    @required String deviceAddress,
+    Function() onReaderSetBTDevice
   }) async {
     _onReaderSetBTDevice = onReaderSetBTDevice;
 
-    await _channel.invokeMethod('startSearchBTDevice');
+    await _channel.invokeMethod('startSearchBTDevice', {
+      'deviceAddress': deviceAddress
+    });
   }
 
   /// Завершает операцию поиска терминала
@@ -190,7 +193,7 @@ class PaymentController {
         break;
       case 'onReaderSetBTDevice':
         if (_onReaderSetBTDevice != null) {
-          _onReaderSetBTDevice(call.arguments);
+          _onReaderSetBTDevice();
         }
 
         break;

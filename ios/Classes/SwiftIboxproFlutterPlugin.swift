@@ -6,6 +6,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
   private let methodChannel: FlutterMethodChannel
   private let paymentControllerDelegate: IboxproFlutterDelegate
   private let paymentController: PaymentController
+  private var deviceAddress = ""
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "iboxpro_flutter", binaryMessenger: registrar.messenger())
@@ -114,8 +115,11 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     paymentController.setSingleStepAuthentication(singleStepAuth)
   }
 
-  public func startSearchBTDevice() {
+  public func startSearchBTDevice(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
     let readerType = PaymentControllerReaderType_P17
+
+    deviceAddress = params["deviceAddress"] as! String
 
     paymentController.setReaderType(readerType)
     paymentController.search4BTReaders(with: readerType)
@@ -146,7 +150,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       startPayment(call)
       return result(nil)
     case "startSearchBTDevice":
-      startSearchBTDevice()
+      startSearchBTDevice(call)
       return result(nil)
     case "stopSearchBTDevice":
       stopSearchBTDevice()

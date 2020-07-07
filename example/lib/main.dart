@@ -29,6 +29,7 @@ class _PaymentExample extends State<PaymentExample> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _loginEmail = '';
   String _password = '';
+  String _deviceAddress = '';
   String _trId;
   bool _requiredSignature = false;
   String _paymentProgressText = 'Оплата не проводилась';
@@ -110,11 +111,18 @@ class _PaymentExample extends State<PaymentExample> {
 
   List<Widget> _buildSearchDevicePart(BuildContext context) {
     return [
+      TextFormField(
+        initialValue: _deviceAddress,
+        maxLines: 1,
+        decoration: InputDecoration(labelText: 'MAC адрес терминала'),
+        onChanged: (val) => _deviceAddress = val
+      ),
       RaisedButton(
         child: Text('Подключиться к терминалу'),
         onPressed: () async {
           await PaymentController.startSearchBTDevice(
-            onReaderSetBTDevice: (Map<dynamic, dynamic> val) async {
+            deviceAddress: _deviceAddress,
+            onReaderSetBTDevice: () async {
               _showSnackBar('Успешно установлена связь с терминалом');
             }
           );
@@ -172,8 +180,10 @@ class _PaymentExample extends State<PaymentExample> {
                   singleStepAuth: true,
                   onPaymentError: (val) {
                     setState(() {
+                      String fullErrorType = '${val['errorType']}/${val['nativeErrorType']}';
+
                       Navigator.pop(context);
-                      _paymentProgressText = 'Произошла ошибка(${val['errorType']}) - ${val['errorMessage']}';
+                      _paymentProgressText = 'Произошла ошибка($fullErrorType) - ${val['errorMessage']}';
                     });
                   },
                   onPaymentStart: (val) {
@@ -184,12 +194,8 @@ class _PaymentExample extends State<PaymentExample> {
                   },
                   onReaderEvent: (val) {
                     setState(() {
-                      if (val['readerEventType'] == ReaderEventType.Disconnected) {
-                        Navigator.pop(context);
-                        PaymentController.cancel();
-                      }
-
-                      _paymentProgressText = 'Состояние терминала - ${val['readerEventType']}';
+                      String fullReaderEventType = '${val['readerEventType']}/${val['nativeReaderEventType']}';
+                      _paymentProgressText = 'Состояние терминала - $fullReaderEventType';
                     });
                   },
                   onPaymentComplete: (val) {

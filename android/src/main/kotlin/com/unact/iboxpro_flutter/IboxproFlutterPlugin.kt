@@ -23,6 +23,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
   private var searchDevice: Boolean = false
   private var paymentContext: PaymentContext
   private var isSingleStepEMV: Boolean = false
+  private var deviceAddress: String = ""
 
   constructor(activity: Activity, channel: MethodChannel) {
     currentActivity = activity
@@ -164,9 +165,12 @@ class IboxproFlutterPlugin: MethodCallHandler {
     paymentController.enable()
   }
 
-  private fun startSearchBTDevice() {
+  private fun startSearchBTDevice(call: MethodCall) {
+    val params = call.arguments as HashMap<String, Any>
+
     if (searchDevice) return
 
+    deviceAddress = params["deviceAddress"] as String
     searchDevice = true
     searchBTDevice()
   }
@@ -203,7 +207,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
         result.success(null)
       }
       "startSearchBTDevice" -> {
-        startSearchBTDevice()
+        startSearchBTDevice(call)
         result.success(null)
       }
       "stopSearchBTDevice" -> {
@@ -228,11 +232,13 @@ class IboxproFlutterPlugin: MethodCallHandler {
       val devices = paymentController.getBluetoothDevices(currentActivity)
 
       if (devices.isNotEmpty()) {
-        var device = devices[0]
+        var device = devices.find { it.address == deviceAddress }
 
-        searchDevice = false
-        paymentController.setReaderType(currentActivity, PaymentController.ReaderType.P17, device.address)
-        methodChannel.invokeMethod("onReaderSetBTDevice", null)
+        if (device != null) {
+          searchDevice = false
+          paymentController.setReaderType(currentActivity, PaymentController.ReaderType.P17, device.address)
+          methodChannel.invokeMethod("onReaderSetBTDevice", null)
+        }
       }
 
       searchBTDevice()
