@@ -49,6 +49,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
       var card = transactionItem.card
 
       result["id"] = transactionItem.id
+      result["rrn"] = transactionItem.rrn
       result["emvData"] = transactionItem.emvData
       result["date"] = transactionItem.date.toString()
       result["currencyID"] = transactionItem.currencyId

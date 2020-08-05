@@ -11,26 +11,42 @@
 
 typedef enum
 {
-    DescriptionProductInputType_Payment = 0x00000001,
-    DescriptionProductInputType_Recurrent = 0x00000002,
-    DescriptionProductInputType_None = 0x00000000,
-    DescriptionProductInputType_All = 0xFFFF
+    DescriptionProductInputType_PAYMENT = 0x00000001,
+    DescriptionProductInputType_RECURRENT = 0x00000002,
+    DescriptionProductInputType_NONE = 0x00000000,
+    DescriptionProductInputType_ALL = 0xFFFF
 } DescriptionProductInputType;
 
 typedef enum
 {
-    DescriptionProductState_Disabled = 0,
-    DescriptionProductState_Enabled = 1
+    DescriptionProductRecurrentMode_NONE = 0,
+    DescriptionProductRecurrentMode_DEFAULT = 1,
+    DescriptionProductRecurrentMode_MANAGED = 2
+} DescriptionProductRecurrentMode;
+
+typedef enum
+{
+    DescriptionProductState_DISABLED = 0,
+    DescriptionProductState_ENABLED = 1
 } DescriptionProductState;
 
 @interface DescriptionProduct : NSObject
 
 -(int)ID;
+-(int)fieldsCount;
+-(BOOL)preparable;
+-(BOOL)preparableOptional;
+-(BOOL)preparableEditable;
+-(BOOL)visible;
 -(DescriptionProductState)state;
 -(DescriptionProductInputType)inputType;
--(int)fieldsCount;
+-(DescriptionProductRecurrentMode)recurrentMode;
+-(DescriptionProductField *)preparableField;
+-(DescriptionProductField *)firstTextField;
 -(NSString *)code;
 -(NSString *)title;
+-(NSString *)qrRegex;
 -(NSArray *)fields;
+-(NSArray *)preparableFields;
 
 @end

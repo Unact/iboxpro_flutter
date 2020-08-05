@@ -10,30 +10,41 @@
 
 typedef enum
 {
-    DescriptionProductFieldType_None = 0,
-    DescriptionProductFieldType_Text = 1,
-    DescriptionProductFieldType_Image = 2,
+    DescriptionProductFieldType_NONE = 0,
+    DescriptionProductFieldType_TEXT = 1,
+    DescriptionProductFieldType_IMAGE = 2,
 } DescriptionProductFieldType;
 
 typedef enum
 {
-    DescriptionProductFieldState_Disabled = 0,
-    DescriptionProductFieldState_Enabled = 1
+    DescriptionProductFieldState_DISABLED = 0,
+    DescriptionProductFieldState_ENABLED = 1
 } DescriptionProductFieldState;
 
 @interface DescriptionProductField : NSObject
 
 -(int)ID;
 -(int)parentID;
+-(int)fiscalTagType;
 -(DescriptionProductFieldState)state;
 -(DescriptionProductFieldType)type;
 -(BOOL)required;
 -(BOOL)textMultiline;
+-(BOOL)preparable;
+-(BOOL)userVisible;
+-(BOOL)receiptMail;
+-(BOOL)receiptPhone;
+-(BOOL)isNumeric;
+-(BOOL)printing;
+-(BOOL)isFiscalTag;
+-(BOOL)isINNSpecialTag;
+-(BOOL)isINNTag;
 -(NSString *)code;
 -(NSString *)title;
 -(NSString *)textMask;
 -(NSString *)textRegExp;
 -(NSString *)defaultValue;
+-(NSString *)fiscalTagCode;
 
 -(NSString *)value;
 

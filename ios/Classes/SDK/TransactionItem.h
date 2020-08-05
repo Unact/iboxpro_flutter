@@ -10,6 +10,7 @@
 #import "DescriptionProduct.h"
 #import "ExternalPayment.h"
 #import "Card.h"
+#import "FiscalInfo.h"
 
 typedef enum
 {
@@ -17,6 +18,7 @@ typedef enum
     TransactionInputType_SWIPE = 2,
     TransactionInputType_EMV = 3,
     TransactionInputType_NFC = 4,
+    TransactionInputType_OUTER_CARD = 7,
     TransactionInputType_PREPAID = 8,
     TransactionInputType_CREDIT = 9,
     TransactionInputType_CASH = 10,
@@ -30,12 +32,15 @@ typedef enum
     TransactionReverseMode_RETURN_PARTIAL = 2,
     TransactionReverseMode_CANCEL = 3,
     TransactionReverseMode_CANCEL_PARTIAL = 4,
+    TransactionReverseMode_CANCEL_CNP = 5,
+    TransactionReverseMode_CANCEL_CNP_PARTIAL = 6,
+    TransactionReverseMode_AUTO_REVERSE = 7
 } TransactionReverseMode;
 
 typedef enum
 {
     TransactionItemDisplayMode_DECLINED = 0,
-    TransactionItemDisplayMode_SUICCESS = 1,
+    TransactionItemDisplayMode_SUCCESS = 1,
     TransactionItemDisplayMode_REVERSE = 2,
     TransactionItemDisplayMode_REVERSED = 3,
     TransactionItemDisplayMode_NON_FINANCIAL = 100
@@ -46,10 +51,12 @@ typedef enum
 -(Card *)card;
 -(DescriptionProduct *)customFieldsProduct;
 -(ExternalPayment *)externalPayment;
+-(FiscalInfo *)fiscalInfo;
 -(TransactionInputType)inputType;
 -(TransactionReverseMode)reverseMode;
 -(TransactionItemDisplayMode)displayMode;
 -(NSDictionary *)emvData;
+-(NSDictionary *)auxData;
 -(NSString *)ID;
 -(NSString *)date;
 -(NSString *)currencyID;
@@ -61,6 +68,7 @@ typedef enum
 -(NSString *)stateDisplay;
 -(NSString *)stateLine1;
 -(NSString *)stateLine2;
+-(NSString *)rrn;
 -(NSString *)invoice;
 -(NSString *)signatureURL;
 -(NSString *)photoURL;
@@ -71,8 +79,11 @@ typedef enum
 -(NSString *)cardholderName;
 -(NSString *)terminalName;
 -(NSString *)acquirerID;
+-(NSString *)extID;
 -(NSArray *)products;
 -(NSArray *)customFields;
+-(NSArray *)purchases;
+-(NSArray *)tags;
 -(double)amount;
 -(double)amountNetto;
 -(double)amountEff;
@@ -84,6 +95,9 @@ typedef enum
 -(BOOL)hasGPSData;
 -(BOOL)withOrder;
 -(BOOL)withCustomFields;
+-(BOOL)withAuxData;
+-(BOOL)withPurchases;
+-(BOOL)withTags;
 -(BOOL)cashPayment;
 -(BOOL)acceptReverseEMV;
 -(BOOL)acceptReverseNFC;

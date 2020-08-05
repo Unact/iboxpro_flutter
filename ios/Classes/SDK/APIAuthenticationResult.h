@@ -15,7 +15,6 @@
 -(APIAuthenticationResult *)initWithResponseString:(NSString *)responseStrin;
 
 -(Account *)account;
-
-
+-(NSArray *)products;
 
 @end

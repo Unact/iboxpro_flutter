@@ -7,11 +7,11 @@
 //
 
 #import "PaymentContext.h"
+#import "TransactionItem.h"
 
 @interface ReversePaymentContext : PaymentContext
 
-@property (nonatomic, retain) NSString *TransactionID;
+@property (nonatomic, retain) TransactionItem *Transaction;
 @property (nonatomic, assign) double AmountReverse;
 
 @end
-

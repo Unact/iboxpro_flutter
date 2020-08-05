@@ -10,7 +10,7 @@ class InputType {
 }
 
 class IosReaderEventType {
-  static const int Initialization = 0;
+  static const int Initialized = 0;
   static const int Connected = 1;
   static const int Disconnected = 2;
   static const int CardInserted = 3;
@@ -20,30 +20,35 @@ class IosReaderEventType {
 
 class IosErrorType {
   static const int Common = 0;
-  static const int CardInsertedWrong = 1;
-  static const int ReaderDisconnected = 2;
-  static const int ReaderTimeout = 3;
-  static const int Submit = 4;
-  static const int SubmitCash = 5;
-  static const int SubmitPrepaid = 6;
-  static const int SubmitCredit = 7;
-  static const int SubmitLink = 8;
-  static const int Swipe = 9;
-  static const int OnlineProcess = 10;
-  static const int Reverse = 11;
-  static const int ReverseCash = 12;
-  static const int ReversePrepaid = 13;
-  static const int ReverseCredit = 14;
-  static const int ScheduleSteps = 15;
-  static const int EMVError = 16;
-  static const int EMVTerminated = 17;
-  static const int EMVDeclined = 18;
-  static const int EMVCancel = 19;
-  static const int EMVCardError = 20;
-  static const int EMVCardBlocked = 21;
-  static const int EMVDeviceError = 22;
-  static const int EMVCardNotSupported = 23;
-  static const int EMVZeroTRA = 24;
+  static const int ZeroAmount = 1;
+  static const int CardInsertedWrong = 2;
+  static const int ReaderDisconnected = 3;
+  static const int ReaderTimeout = 4;
+  static const int Submit = 5;
+  static const int SubmitCash = 6;
+  static const int SubmitPrepaid = 7;
+  static const int SubmitCredit = 8;
+  static const int SubmitOuterCard = 9;
+  static const int SubmitLink = 10;
+  static const int Swipe = 11;
+  static const int OnlineProcess = 12;
+  static const int Reverse = 13;
+  static const int ReverseCash = 14;
+  static const int ReversePrepaid = 15;
+  static const int ReverseCredit = 16;
+  static const int ReverseOuterCard = 17;
+  static const int ReverseLink = 18;
+  static const int ReverseCNP = 19;
+  static const int ReverseCAuto = 20;
+  static const int ScheduleSteps = 21;
+  static const int EMVError = 22;
+  static const int EMVTerminated = 23;
+  static const int EMVDeclined = 24;
+  static const int EMVCancel = 25;
+  static const int EMVCardError = 26;
+  static const int EMVCardBlocked = 27;
+  static const int EMVDeviceError = 28;
+  static const int EMVCardNotSupported = 29;
 }
 
 class AndroidReaderEventType {
@@ -91,7 +96,7 @@ class AndroidErrorType {
 
 class ReaderEventType {
   static const int Unknown = -1;
-  static const int Initialization = 0;
+  static const int Initialized = 0;
   static const int Connected = 1;
   static const int Disconnected = 2;
   static const int CardSwiped = 3;
@@ -100,7 +105,7 @@ class ReaderEventType {
   static fromAndroidType(int androidType) {
     switch (androidType) {
       case AndroidReaderEventType.InitSuccessfully:
-        return Initialization;
+        return Initialized;
         break;
       case AndroidReaderEventType.Connected:
         return Connected;
@@ -125,8 +130,8 @@ class ReaderEventType {
 
   static fromIosType(int iosType) {
     switch (iosType) {
-      case IosReaderEventType.Initialization:
-        return Initialization;
+      case IosReaderEventType.Initialized:
+        return Initialized;
         break;
       case IosReaderEventType.Connected:
         return Connected;
@@ -234,7 +239,7 @@ class ErrorType {
       case IosErrorType.EMVCardNotSupported:
         return EMVCardNotSupported;
         break;
-      case IosErrorType.EMVZeroTRA:
+      case IosErrorType.ZeroAmount:
         return EMVZeroTRA;
         break;
       default:

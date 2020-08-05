@@ -86,9 +86,9 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
   public func setRequestTimeout(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
-    let timeout = params["timeout"] as! Double
+    let timeout = params["timeout"] as! Int32
 
-    paymentController.setRequestTimeOut(timeout)
+    paymentController.setRequestTimeout(timeout)
   }
 
   public func startPayment(_ call: FlutterMethodCall) {
@@ -165,6 +165,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
     return [
       "id": transactionItem.id(),
+      "rrn": transactionItem.rrn(),
       "emvData": transactionItem.emvData(),
       "date": transactionItem.date(),
       "currencyID": transactionItem.currencyID(),
@@ -246,6 +247,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
     public func paymentControllerRequestBTDevice(_ devices: [Any]!) {
       let device = (devices as! [BTDevice]).first
+      print(device!.name())
 
       paymentController.setBTDevice(device)
       paymentController.save(device)

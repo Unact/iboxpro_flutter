@@ -5,10 +5,14 @@
 #import "ReversePaymentContext.h"
 #import "TransactionData.h"
 #import "Purchase.h"
+#import "Tag.h"
 #import "BTDevice.h"
 #import "APIResult.h"
 #import "APIHistoryResult.h"
 #import "APIAuthenticationResult.h"
+#import "APIFiscalInfoResult.h"
+#import "APIFiscalizeResult.h"
+#import "APIPrepareResult.h"
 
 typedef enum
 {
@@ -20,6 +24,7 @@ typedef enum
 typedef enum
 {
     PaymentControllerErrorType_COMMON,
+    PaymentControllerErrorType_ZERO_AMOUNT,
     PaymentControllerErrorType_CARD_INSERTED_WRONG,
     PaymentControllerErrorType_READER_DISCONNECTED,
     PaymentControllerErrorType_READER_TIMEOUT,
@@ -27,6 +32,7 @@ typedef enum
     PaymentControllerErrorType_SUBMIT_CASH,
     PaymentControllerErrorType_SUBMIT_PREPAID,
     PaymentControllerErrorType_SUBMIT_CREDIT,
+    PaymentControllerErrorType_SUBMIT_OUTER_CARD,
     PaymentControllerErrorType_SUBMIT_LINK,
     PaymentControllerErrorType_SWIPE,
     PaymentControllerErrorType_ONLINE_PROCESS,
@@ -34,6 +40,10 @@ typedef enum
     PaymentControllerErrorType_REVERSE_CASH,
     PaymentControllerErrorType_REVERSE_PREPAID,
     PaymentControllerErrorType_REVERSE_CREDIT,
+    PaymentControllerErrorType_REVERSE_OUTER_CARD,
+    PaymentControllerErrorType_REVERSE_LINK,
+    PaymentControllerErrorType_REVERSE_CNP,
+    PaymentControllerErrorType_REVERSE_AUTO,
     PaymentControllerErrorType_SCHEDULE_STEPS,
     PaymentControllerErrorType_EMV_ERROR,
     PaymentControllerErrorType_EMV_TERMINATED,
@@ -42,13 +52,12 @@ typedef enum
     PaymentControllerErrorType_EMV_CARD_ERROR,
     PaymentControllerErrorType_EMV_CARD_BLOCKED,
     PaymentControllerErrorType_EMV_DEVICE_ERROR,
-    PaymentControllerErrorType_EMV_CARD_NOT_SUPPORTED,
-    PaymentControllerErrorType_EMV_ZERO_TRAN
+    PaymentControllerErrorType_EMV_CARD_NOT_SUPPORTED
 } PaymentControllerErrorType;
 
 typedef enum
 {
-    PaymentControllerReaderEventType_INITIALIZATION,
+    PaymentControllerReaderEventType_INITIALIZED,
     PaymentControllerReaderEventType_CONNECTED,
     PaymentControllerReaderEventType_DISCONNECTED,
     PaymentControllerReaderEventType_CARD_INSERTED,
@@ -71,6 +80,10 @@ typedef enum
 
 +(PaymentController *)instance;
 +(void)destroy;
+
+-(NSString *)version;
+-(NSArray *)supportedReaders;
+-(NSDictionary *)readerInfo;
 -(void)setPaymentContext:(PaymentContext *)paymentContext;
 -(void)setClientProductCode:(NSString *)clientProductCode;
 -(void)setDelegate:(id<PaymentControllerDelegate>)delegate;
@@ -88,6 +101,9 @@ typedef enum
 -(APIAuthenticationResult *)authentication;
 -(APIHistoryResult *)historyWithPage:(int)page;
 -(APIHistoryResult *)historyWithTransactionID:(NSString *)transactionID;
+-(APIFiscalInfoResult *)fiscalInfoWithTrId:(NSString *)trId;
+-(APIFiscalizeResult *)fiscalizeWithTrId:(NSString *)trId;
+-(APIPrepareResult *)prepareWithProductCode:(NSString *)productCode PrepareData:(NSDictionary *)prepareData;
 -(APIResult *)adjustWithTrId:(NSString *)trId Signature:(NSData *)signature ReceiptEmail:(NSString *)receiptEmail ReceiptPhone:(NSString *)receiptPhone;
 -(APIResult *)adjustWithScheduleId:(NSString *)scheduleId Signature:(NSData *)signature ReceiptEmail:(NSString *)receiptEmail ReceiptPhone:(NSString *)receiptPhone;
 -(APIResult *)reverseAdjustWithTrId:(NSString *)trId Signature:(NSData *)signature ReceiptEmail:(NSString *)receiptEmail ReceiptPhone:(NSString *)receiptPhone;
@@ -97,6 +113,6 @@ typedef enum
 -(void)search4BTReadersWithType:(PaymentControllerReaderType)readerType;
 -(void)stopSearch4BTReaders;
 -(void)setReaderType:(PaymentControllerReaderType)readerType;
--(void)setRequestTimeOut:(double)timeOut;
+-(void)setRequestTimeout:(int)timeout;
 
 @end

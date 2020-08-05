@@ -1,3 +1,13 @@
+## 0.1.6
+
+* Обновлена версия SDK для ios
+* Добавлен тег rrn в ответ транзакции оплаты
+* Изменена константы  
+ReaderEventType.Initialization - ReaderEventType.Initialized  
+IosReaderEventType.Initialization - IosReaderEventType.Initialized  
+
+* Также изменены все константы в IosErrorType
+
 ## 0.1.5
 
 * Поправлен баг связанный с не корректным выбором BT устройства на Android. Теперь для подключения необходимо указывать адрес устройства.

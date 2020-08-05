@@ -12,15 +12,20 @@
 
 -(Purchase *)init;
 
++(NSString *)purchases2JsonString:(NSArray *)purchases;
++(NSArray *)purchasesFromJsonString:(NSString *)jsonSring;
+
 -(void)setTitle:(NSString *)title;
 -(void)setTaxes:(NSArray *)taxes;
+-(void)setTags:(NSArray *)tags;
+-(void)setQuantity:(double)quantity;
 -(void)setPrice:(double)price;
--(void)setQuantity:(int)quantity;
 -(NSDictionary *)data;
 
 -(NSString *)title;
 -(NSArray *)taxes;
+-(NSArray *)tags;
+-(double)quantity;
 -(double)price;
--(int)quantity;
 
 @end
