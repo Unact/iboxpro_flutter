@@ -23,7 +23,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
   private var searchDevice: Boolean = false
   private var paymentContext: PaymentContext
   private var isSingleStepEMV: Boolean = false
-  private var deviceAddress: String = ""
+  private var deviceName: String = ""
 
   constructor(activity: Activity, channel: MethodChannel) {
     currentActivity = activity
@@ -111,7 +111,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
   }
 
   private fun cancel() {
-    paymentController.disable()
+    disable()
   }
 
   private fun info(call: MethodCall) {
@@ -171,7 +171,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
 
     if (searchDevice) return
 
-    deviceAddress = params["deviceAddress"] as String
+    deviceName = params["deviceName"] as String
     searchDevice = true
     searchBTDevice()
   }
@@ -180,6 +180,11 @@ class IboxproFlutterPlugin: MethodCallHandler {
     if (!searchDevice) return
 
     searchDevice = false
+  }
+
+  private fun disable() {
+    paymentController.disable()
+    paymentController.setReaderType(currentActivity, null, null)
   }
 
   override fun onMethodCall(call: MethodCall, result: Result) {
@@ -233,7 +238,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
       val devices = paymentController.getBluetoothDevices(currentActivity)
 
       if (devices.isNotEmpty()) {
-        var device = devices.find { it.address == deviceAddress }
+        var device = devices.find { it.name == deviceName }
 
         if (device != null) {
           searchDevice = false
@@ -260,7 +265,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
       arguments["requiredSignature"] = transactionData.isRequiresSignature
       arguments["transaction"] = formatTransactionItem(transactionData.transactionItem)
 
-      plugin.paymentController.disable()
+      plugin.disable()
 
       plugin.methodChannel.invokeMethod("onPaymentComplete", arguments)
     }
@@ -278,8 +283,17 @@ class IboxproFlutterPlugin: MethodCallHandler {
 
       arguments["nativeReaderEventType"] = event.ordinal
 
-      if (event == PaymentController.ReaderEvent.INIT_SUCCESSFULLY) {
-        plugin.beginPayment()
+      when(event) {
+        PaymentController.ReaderEvent.DISCONNECTED,
+        PaymentController.ReaderEvent.INIT_FAILED,
+        PaymentController.ReaderEvent.EJECT_CARD_TIMEOUT,
+        PaymentController.ReaderEvent.PAYMENT_CANCELED,
+        PaymentController.ReaderEvent.EJECT_CARD,
+        PaymentController.ReaderEvent.BAD_SWIPE,
+        PaymentController.ReaderEvent.LOW_BATTERY,
+        PaymentController.ReaderEvent.CARD_TIMEOUT,
+        PaymentController.ReaderEvent.PIN_TIMEOUT -> plugin.disable()
+        PaymentController.ReaderEvent.INIT_SUCCESSFULLY -> plugin.beginPayment()
       }
 
       plugin.methodChannel.invokeMethod("onReaderEvent", arguments)
@@ -291,7 +305,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
       arguments["nativeErrorType"] = error.ordinal
       arguments["errorMessage"] = message ?: ""
 
-      plugin.paymentController.disable()
+      plugin.disable()
 
       plugin.methodChannel.invokeMethod("onPaymentError", arguments)
     }

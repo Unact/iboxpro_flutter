@@ -10,7 +10,7 @@
 
 @interface BTDevice : NSObject
 
--(NSString *)ID;
+-(NSString *)uuid;
 -(NSString *)name;
 
 @end

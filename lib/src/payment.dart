@@ -124,13 +124,13 @@ class PaymentController {
   ///
   /// Важно: [iOS] Всегда выбирает первый найденный терминал
   static Future<void> startSearchBTDevice({
-    @required String deviceAddress,
+    @required String deviceName,
     Function() onReaderSetBTDevice
   }) async {
     _onReaderSetBTDevice = onReaderSetBTDevice;
 
     await _channel.invokeMethod('startSearchBTDevice', {
-      'deviceAddress': deviceAddress
+      'deviceName': deviceName
     });
   }
 

@@ -11,6 +11,7 @@
 #import "ExternalPayment.h"
 #import "Card.h"
 #import "FiscalInfo.h"
+#include "Result.h"
 
 typedef enum
 {
@@ -48,6 +49,7 @@ typedef enum
 
 @interface TransactionItem : NSObject
 
+-(Result *)result;
 -(Card *)card;
 -(DescriptionProduct *)customFieldsProduct;
 -(ExternalPayment *)externalPayment;

@@ -6,7 +6,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
   private let methodChannel: FlutterMethodChannel
   private let paymentControllerDelegate: IboxproFlutterDelegate
   private let paymentController: PaymentController
-  private var deviceAddress = ""
+  private static var deviceName = ""
 
   public static func register(with registrar: FlutterPluginRegistrar) {
     let channel = FlutterMethodChannel(name: "iboxpro_flutter", binaryMessenger: registrar.messenger())
@@ -119,7 +119,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     let params = call.arguments as! [String: Any]
     let readerType = PaymentControllerReaderType_P17
 
-    deviceAddress = params["deviceAddress"] as! String
+    SwiftIboxproFlutterPlugin.deviceName = params["deviceName"] as! String
 
     paymentController.setReaderType(readerType)
     paymentController.search4BTReaders(with: readerType)
@@ -206,6 +206,10 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       self.paymentController = paymentController
     }
 
+    public func disable() {
+      paymentController.disable()
+    }
+
     public func paymentControllerStartTransaction(_ transactionId: String!) {
       let arguments: [String:String] = [
         "id": transactionId
@@ -221,7 +225,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
         "transaction": SwiftIboxproFlutterPlugin.formatTransactionItem(transactionData.transaction!)
       ]
 
-      paymentController.disable()
+      disable()
 
       methodChannel.invokeMethod("onPaymentComplete", arguments: arguments)
     }
@@ -232,7 +236,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
         "errorMessage": message != nil ? message! : ""
       ]
 
-      paymentController.disable()
+      disable()
 
       methodChannel.invokeMethod("onPaymentError", arguments: arguments)
     }
@@ -246,14 +250,15 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     public func paymentControllerRequestBTDevice(_ devices: [Any]!) {
-      let device = (devices as! [BTDevice]).first
-      print(device!.name())
+      let device = (devices as! [BTDevice]).first(where: { $0.name() == SwiftIboxproFlutterPlugin.deviceName })
 
-      paymentController.setBTDevice(device)
-      paymentController.save(device)
-      paymentController.stopSearch4BTReaders()
+      if (device != nil) {
+        paymentController.setBTDevice(device)
+        paymentController.save(device)
+        paymentController.stopSearch4BTReaders()
 
-      methodChannel.invokeMethod("onReaderSetBTDevice", arguments: nil)
+        methodChannel.invokeMethod("onReaderSetBTDevice", arguments: nil)
+      }
     }
 
     public func paymentControllerRequestCardApplication(_ applications: [Any]!) {}

@@ -29,7 +29,7 @@ class _PaymentExample extends State<PaymentExample> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String _loginEmail = '';
   String _password = '';
-  String _deviceAddress = '';
+  String _deviceName = '';
   String _trId;
   bool _requiredSignature = false;
   String _paymentProgressText = 'Оплата не проводилась';
@@ -112,16 +112,16 @@ class _PaymentExample extends State<PaymentExample> {
   List<Widget> _buildSearchDevicePart(BuildContext context) {
     return [
       TextFormField(
-        initialValue: _deviceAddress,
+        initialValue: _deviceName,
         maxLines: 1,
-        decoration: InputDecoration(labelText: 'MAC адрес терминала'),
-        onChanged: (val) => _deviceAddress = val
+        decoration: InputDecoration(labelText: 'Имя терминала'),
+        onChanged: (val) => _deviceName = val
       ),
       RaisedButton(
         child: Text('Подключиться к терминалу'),
         onPressed: () async {
           await PaymentController.startSearchBTDevice(
-            deviceAddress: _deviceAddress,
+            deviceName: _deviceName,
             onReaderSetBTDevice: () async {
               _showSnackBar('Успешно установлена связь с терминалом');
             }
