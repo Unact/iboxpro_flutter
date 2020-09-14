@@ -1,3 +1,10 @@
+## 0.2.0
+
+* Обновлена версия SDK для iOS
+* Добавлена возможность сделать возврат/отмену транзакции методами startReversePayment, adjustReversePayment
+* Убран тег reverseMode из информации о транзакции
+__breaking change__ Изменены сигнатуры ответов всех методов PaymentController
+
 ## 0.1.7
 
 * Обновлена версия SDK для iOS

@@ -102,7 +102,7 @@ class ReaderEventType {
   static const int CardSwiped = 3;
   static const int EMVStarted = 4;
 
-  static fromAndroidType(int androidType) {
+  static int fromAndroidType(int androidType) {
     switch (androidType) {
       case AndroidReaderEventType.InitSuccessfully:
         return Initialized;
@@ -128,7 +128,7 @@ class ReaderEventType {
     }
   }
 
-  static fromIosType(int iosType) {
+  static int fromIosType(int iosType) {
     switch (iosType) {
       case IosReaderEventType.Initialized:
         return Initialized;
@@ -166,7 +166,7 @@ class ErrorType {
   static const int EMVCardNotSupported = 9;
   static const int EMVZeroTRA = 10;
 
-  static fromAndroidType(int androidType) {
+  static int fromAndroidType(int androidType) {
     switch (androidType) {
       case AndroidErrorType.ConnectionError:
         return ConnectionError;
@@ -207,7 +207,7 @@ class ErrorType {
     }
   }
 
-  static fromIosType(int iosType) {
+  static int fromIosType(int iosType) {
     switch (iosType) {
       case IosErrorType.Submit:
         return ConnectionError;

@@ -3,6 +3,7 @@ package com.unact.iboxpro_flutter
 import android.app.Activity
 import android.os.Handler
 import ibox.pro.sdk.external.PaymentContext
+import ibox.pro.sdk.external.ReversePaymentContext
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -11,6 +12,7 @@ import io.flutter.plugin.common.PluginRegistry.Registrar
 import ibox.pro.sdk.external.PaymentController
 import ibox.pro.sdk.external.PaymentControllerListener
 import ibox.pro.sdk.external.PaymentResultContext
+import ibox.pro.sdk.external.entities.APIResult
 import ibox.pro.sdk.external.entities.TransactionItem
 import java.util.*
 import kotlin.collections.HashMap
@@ -21,7 +23,8 @@ class IboxproFlutterPlugin: MethodCallHandler {
   private var paymentController: PaymentController
   private var paymentControllerListener: IboxproFlutterPluginListener
   private var searchDevice: Boolean = false
-  private var paymentContext: PaymentContext
+  private var paymentContext: PaymentContext? = null
+  private var reversePaymentContext: ReversePaymentContext? = null
   private var isSingleStepEMV: Boolean = false
   private var deviceName: String = ""
 
@@ -30,7 +33,6 @@ class IboxproFlutterPlugin: MethodCallHandler {
     methodChannel = channel
     paymentController = PaymentController.getInstance()
     paymentControllerListener = IboxproFlutterPluginListener(this)
-    paymentContext = PaymentContext()
 
     paymentController.setPaymentControllerListener(paymentControllerListener)
   }
@@ -69,7 +71,6 @@ class IboxproFlutterPlugin: MethodCallHandler {
       result["subState"] = transactionItem.json["Substate"]
       result["inputType"] = transactionItem.inputType.value
       result["displayMode"] = transactionItem.displayMode.ordinal
-      result["reverseMode"] = transactionItem.json["ReverseMode"]
       result["acquirerID"] = transactionItem.json["AcquirerID"]
       result["card"] = resultCard
       resultCard["iin"] = card?.iin
@@ -99,15 +100,28 @@ class IboxproFlutterPlugin: MethodCallHandler {
     val params = call.arguments as HashMap<String, Any>
     val res = paymentController.adjust(
       currentActivity,
-      params["trId"] as String,
+      params["id"] as String,
       params["receiptPhone"] as? String,
       params["receiptEmail"] as? String,
       params["signature"] as ByteArray
     )
-    val arguments = HashMap<String, Any>()
-    arguments["errorCode"] = if (res != null && res.isValid) res.errorCode else apiError
+    val arguments = checkResult(res)
 
     methodChannel.invokeMethod("onPaymentAdjust", arguments)
+  }
+
+  private fun adjustReversePayment(call: MethodCall) {
+    val params = call.arguments as HashMap<String, Any>
+    val res = paymentController.adjustReverse(
+      currentActivity,
+      params["id"] as String,
+      params["receiptPhone"] as? String,
+      params["receiptEmail"] as? String,
+      params["signature"] as ByteArray
+    )
+    val arguments = checkResult(res)
+
+    methodChannel.invokeMethod("onReversePaymentAdjust", arguments)
   }
 
   private fun cancel() {
@@ -116,17 +130,14 @@ class IboxproFlutterPlugin: MethodCallHandler {
 
   private fun info(call: MethodCall) {
     val params = call.arguments as HashMap<String, Any>
-    val res = paymentController.getTransactionByID(currentActivity, params["trId"] as String)
-    val errorCode = if (res != null && res.isValid) res.errorCode else apiError
-    val arguments = HashMap<String, Any>()
+    val res = paymentController.getTransactionByID(currentActivity, params["id"] as String)
+    val arguments = checkResult(res)
 
-    arguments["errorCode"] = errorCode
-
-    if (errorCode == 0 && res.transactions.isNotEmpty()) {
+    if (arguments["errorCode"] == 0 && res.transactions.isNotEmpty()) {
       val transactionItem = res.transactions.first()
       val formattedData = formatTransactionItem(transactionItem)
 
-      arguments.putAll(formattedData)
+      arguments["transaction"] = formattedData
     }
 
     methodChannel.invokeMethod("onInfo", arguments)
@@ -137,8 +148,7 @@ class IboxproFlutterPlugin: MethodCallHandler {
 
     paymentController.setCredentials(params["email"].toString(), params["password"].toString())
     val res = paymentController.auth(currentActivity)
-    val arguments = HashMap<String, Any>()
-    arguments["errorCode"] = if (res != null && res.isValid) res.errorCode else apiError
+    val arguments = checkResult(res)
 
     methodChannel.invokeMethod("onLogin", arguments)
   }
@@ -152,18 +162,64 @@ class IboxproFlutterPlugin: MethodCallHandler {
     val phone = params["receiptPhone"] as? String
     val singleStepAuth = params["singleStepAuth"] as Boolean
 
-    paymentContext.reset()
-
-    paymentContext.method = methodFromInputType(inputType)
-    paymentContext.currency = PaymentController.Currency.RUB
-    paymentContext.amount = amount
-    paymentContext.description = description
-    paymentContext.receiptEmail = email
-    paymentContext.receiptPhone = phone
+    paymentContext = PaymentContext()
+    paymentContext?.method = methodFromInputType(inputType)
+    paymentContext?.currency = PaymentController.Currency.RUB
+    paymentContext?.amount = amount
+    paymentContext?.description = description
+    paymentContext?.receiptEmail = email
+    paymentContext?.receiptPhone = phone
 
     isSingleStepEMV = singleStepAuth
 
     paymentController.enable()
+  }
+
+  private fun startReversePayment(call: MethodCall) {
+    val params = call.arguments as HashMap<String, Any>
+    val amount = params["amount"] as Double
+    val email = params["receiptEmail"] as? String
+    val phone = params["receiptPhone"] as? String
+    val singleStepAuth = params["singleStepAuth"] as Boolean
+    val res = paymentController.getTransactionByID(currentActivity, params["id"] as String)
+    val arguments = checkResult(res)
+
+    if (arguments["errorCode"] == 0 && res.transactions.isNotEmpty()) {
+      val transactionItem = res.transactions.first()
+      var action:PaymentController.ReverseAction? = null
+
+      if (
+        transactionItem.canCancel() ||
+        transactionItem.canCancelPartial() ||
+        transactionItem.canCancelCNP() ||
+        transactionItem.canCancelCNPPartial()
+      ) {
+        action = PaymentController.ReverseAction.CANCEL
+      }
+
+      if (transactionItem.canReturn() || transactionItem.canReturnPartial()) {
+        action = PaymentController.ReverseAction.RETURN
+      }
+
+      if (action == null) {
+        methodChannel.invokeMethod("onReverseReject", arguments)
+        return
+      }
+
+      reversePaymentContext = ReversePaymentContext()
+      reversePaymentContext?.action = action
+      reversePaymentContext?.transactionID = transactionItem.id
+      reversePaymentContext?.currency = PaymentController.Currency.RUB
+      reversePaymentContext?.returnAmount = amount
+      reversePaymentContext?.receiptEmail = email
+      reversePaymentContext?.receiptPhone = phone
+
+      isSingleStepEMV = singleStepAuth
+
+      paymentController.enable()
+    } else {
+      methodChannel.invokeMethod("onHistoryError", arguments)
+    }
   }
 
   private fun startSearchBTDevice(call: MethodCall) {
@@ -183,6 +239,8 @@ class IboxproFlutterPlugin: MethodCallHandler {
   }
 
   private fun disable() {
+    paymentContext = null
+    reversePaymentContext = null
     paymentController.disable()
     paymentController.setReaderType(currentActivity, null, null)
   }
@@ -191,6 +249,10 @@ class IboxproFlutterPlugin: MethodCallHandler {
     when (call.method) {
       "adjustPayment" -> {
         adjustPayment(call)
+        result.success(null)
+      }
+      "adjustReversePayment" -> {
+        adjustReversePayment(call)
         result.success(null)
       }
       "cancel" -> {
@@ -205,11 +267,12 @@ class IboxproFlutterPlugin: MethodCallHandler {
         login(call)
         result.success(null)
       }
-      "setRequestTimeout" -> {
-        result.success(null)
-      }
       "startPayment" -> {
         startPayment(call)
+        result.success(null)
+      }
+      "startReversePayment" -> {
+        startReversePayment(call)
         result.success(null)
       }
       "startSearchBTDevice" -> {
@@ -226,8 +289,27 @@ class IboxproFlutterPlugin: MethodCallHandler {
     }
   }
 
+  private fun checkResult(res: APIResult): HashMap<String, Any?> {
+    val arguments = HashMap<String, Any?>()
+
+    if (res != null && res.isValid) {
+      arguments["errorCode"] = res.errorCode
+      arguments["errorMessage"] = res.errorMessage
+    } else {
+      arguments["errorCode"] = apiError
+      arguments["errorMessage"] = null
+    }
+
+    return arguments
+  }
+
   private fun beginPayment() {
-    paymentController.startPayment(currentActivity, paymentContext)
+    if (reversePaymentContext != null) {
+      paymentController.reversePayment(currentActivity, reversePaymentContext)
+    } else {
+      paymentController.startPayment(currentActivity, paymentContext)
+    }
+
     paymentController.isSingleStepEMV = isSingleStepEMV
   }
 
@@ -261,7 +343,6 @@ class IboxproFlutterPlugin: MethodCallHandler {
     override fun onFinished(transactionData: PaymentResultContext) {
       val arguments = HashMap<String, Any>()
 
-      arguments["id"] = transactionData.tranId
       arguments["requiredSignature"] = transactionData.isRequiresSignature
       arguments["transaction"] = formatTransactionItem(transactionData.transactionItem)
 

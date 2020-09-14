@@ -32,16 +32,30 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
     DispatchQueue.global(qos: .background).async {
       let res = self.paymentController.adjust(
-        withTrId: (params["trId"] as! String),
+        withTrId: (params["id"] as! String),
         signature: (params["signature"] as! FlutterStandardTypedData).data,
         receiptEmail: params["receiptEmail"] as? String,
         receiptPhone: params["receiptPhone"] as? String
       )
-      let arguments = [
-        "errorCode": res != nil && res!.valid() ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
-      ]
+      let arguments = self.checkResult(res)
 
       self.methodChannel.invokeMethod("onPaymentAdjust", arguments: arguments)
+    }
+  }
+
+  public func adjustReversePayment(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+
+    DispatchQueue.global(qos: .background).async {
+      let res = self.paymentController.reverseAdjust(
+        withTrId: (params["id"] as! String),
+        signature: (params["signature"] as! FlutterStandardTypedData).data,
+        receiptEmail: params["receiptEmail"] as? String,
+        receiptPhone: params["receiptPhone"] as? String
+      )
+      let arguments = self.checkResult(res)
+
+      self.methodChannel.invokeMethod("onReversePaymentAdjust", arguments: arguments)
     }
   }
 
@@ -53,17 +67,14 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     let params = call.arguments as! [String: Any]
 
     DispatchQueue.global(qos: .background).async {
-      let res = self.paymentController.history(withTransactionID: (params["trId"] as! String))
-      let errorCode = res != nil && res!.valid() ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
-      var arguments = [
-        "errorCode": errorCode
-        ] as [String:Any]
+      let res = self.paymentController.history(withTransactionID: (params["id"] as! String))
+      var arguments = self.checkResult(res)
 
-      if (errorCode == 0 && !res!.transactions()!.isEmpty) {
+      if (arguments["errorCode"] as! Int == 0 && !res!.transactions()!.isEmpty) {
         let transactionItem = res!.transactions().first as! TransactionItem
         let formattedData = SwiftIboxproFlutterPlugin.formatTransactionItem(transactionItem)
 
-        arguments.merge(formattedData) { (current, _) in current }
+        arguments["transaction"] = formattedData
       }
 
       self.methodChannel.invokeMethod("onInfo", arguments: arguments)
@@ -76,19 +87,10 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     DispatchQueue.global(qos: .background).async {
       self.paymentController.setEmail((params["email"] as! String), password: (params["password"] as! String))
       let res = self.paymentController.authentication()
-      let arguments = [
-        "errorCode": res != nil && res!.valid() ? Int(res!.errorCode()) : SwiftIboxproFlutterPlugin.apiError
-      ]
+      let arguments = self.checkResult(res)
 
       self.methodChannel.invokeMethod("onLogin", arguments: arguments)
     }
-  }
-
-  public func setRequestTimeout(_ call: FlutterMethodCall) {
-    let params = call.arguments as! [String: Any]
-    let timeout = params["timeout"] as! Int32
-
-    paymentController.setRequestTimeout(timeout)
   }
 
   public func startPayment(_ call: FlutterMethodCall) {
@@ -96,7 +98,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     let inputType = TransactionInputType(
       rawValue: TransactionInputType.RawValue(params["inputType"] as! Int)
     )
-    let amount = params["amount"] as! Double
+    let amount = (params["amount"] as! NSNumber).doubleValue
     let description = params["description"] as! String
     let email = params["receiptEmail"] as? String
     let phone = params["receiptPhone"] as? String
@@ -115,24 +117,65 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     paymentController.setSingleStepAuthentication(singleStepAuth)
   }
 
+  public func startReversePayment(_ call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let amount = (params["amount"] as! NSNumber).doubleValue
+    let email = params["receiptEmail"] as? String
+    let phone = params["receiptPhone"] as? String
+    let singleStepAuth = params["singleStepAuth"] as! Bool
+
+    DispatchQueue.global(qos: .background).async {
+      let res = self.paymentController.history(withTransactionID: (params["id"] as! String))
+      let arguments = self.checkResult(res)
+
+      if (arguments["errorCode"] as! Int == 0 && !res!.transactions()!.isEmpty) {
+        let transactionItem = (res!.transactions().first as! TransactionItem)
+
+        if (
+          transactionItem.reverseMode() == TransactionReverseMode_NONE ||
+          transactionItem.reverseMode() == TransactionReverseMode_AUTO_REVERSE
+        ) {
+          self.methodChannel.invokeMethod("onReverseReject", arguments: arguments)
+          return
+        }
+
+        let ctx = ReversePaymentContext.init()
+        ctx.currency = CurrencyType_RUB
+        ctx.amountReverse = amount
+        ctx.receiptMail = email
+        ctx.receiptPhone = phone
+        ctx.transaction = transactionItem
+
+        self.paymentController.setPaymentContext(ctx)
+        self.paymentController.enable()
+        self.paymentController.setSingleStepAuthentication(singleStepAuth)
+      } else {
+        self.methodChannel.invokeMethod("onHistoryError", arguments: arguments)
+      }
+    }
+  }
+
   public func startSearchBTDevice(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let readerType = PaymentControllerReaderType_P17
 
     SwiftIboxproFlutterPlugin.deviceName = params["deviceName"] as! String
 
-    paymentController.setReaderType(readerType)
-    paymentController.search4BTReaders(with: readerType)
+    self.paymentController.setReaderType(readerType)
+    self.paymentController.search4BTReaders(with: readerType)
   }
 
   public func stopSearchBTDevice() {
-    paymentController.stopSearch4BTReaders()
+    self.paymentController.stopSearch4BTReaders()
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "adjustPayment":
       adjustPayment(call)
+      return result(nil)
+    case "adjustReversePayment":
+      adjustReversePayment(call)
       return result(nil)
     case "cancel":
       cancel()
@@ -143,11 +186,11 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     case "login":
       login(call)
       return result(nil)
-    case "setRequestTimeout":
-      setRequestTimeout(call)
-      return result(nil)
     case "startPayment":
       startPayment(call)
+      return result(nil)
+    case "startReversePayment":
+      startReversePayment(call)
       return result(nil)
     case "startSearchBTDevice":
       startSearchBTDevice(call)
@@ -158,6 +201,20 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     default:
       return result(FlutterMethodNotImplemented)
     }
+  }
+
+  private func checkResult(_ res: APIResult?) -> [String:Any?] {
+    var arguments = [
+      "errorMessage": nil
+    ] as [String:Any?]
+
+    if (res != nil && res!.valid()) {
+      arguments["errorCode"] = Int(res!.errorCode())
+    } else {
+      arguments["errorCode"] = SwiftIboxproFlutterPlugin.apiError
+    }
+
+    return arguments
   }
 
   public static func formatTransactionItem(_ transactionItem: TransactionItem) -> [String:Any] {
@@ -185,7 +242,6 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       "subState": transactionItem.subState(),
       "inputType": Int(transactionItem.inputType().rawValue),
       "displayMode": Int(transactionItem.displayMode().rawValue),
-      "reverseMode": Int(transactionItem.reverseMode().rawValue),
       "acquirerID": transactionItem.acquirerID(),
       "card": [
         "iin": card?.iin(),
@@ -207,7 +263,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     }
 
     public func disable() {
-      paymentController.disable()
+      self.paymentController.disable()
     }
 
     public func paymentControllerStartTransaction(_ transactionId: String!) {
@@ -220,7 +276,6 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
     public func paymentControllerDone(_ transactionData: TransactionData!) {
       let arguments: [String:Any] = [
-        "id": transactionData.id,
         "requiredSignature": transactionData.requiredSignature,
         "transaction": SwiftIboxproFlutterPlugin.formatTransactionItem(transactionData.transaction!)
       ]
@@ -253,9 +308,9 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       let device = (devices as! [BTDevice]).first(where: { $0.name() == SwiftIboxproFlutterPlugin.deviceName })
 
       if (device != nil) {
-        paymentController.setBTDevice(device)
-        paymentController.save(device)
-        paymentController.stopSearch4BTReaders()
+        self.paymentController.setBTDevice(device)
+        self.paymentController.save(device)
+        self.paymentController.stopSearch4BTReaders()
 
         methodChannel.invokeMethod("onReaderSetBTDevice", arguments: nil)
       }
