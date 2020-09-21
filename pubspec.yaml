@@ -1,13 +1,14 @@
 name: iboxpro_flutter
 description: Flutter плагин для работы с библиотекой iboxpro
 version: 0.2.1
-author: Unact <it@unact.ru>
 homepage: https://github.com/Unact/iboxpro_flutter
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
+  flutter: ">=1.12.0 <2.0.0"
 
 dependencies:
+  meta: ^1.1.8
   flutter:
     sdk: flutter
 
@@ -17,5 +18,9 @@ dev_dependencies:
 
 flutter:
   plugin:
-    androidPackage: com.unact.iboxpro_flutter
-    pluginClass: IboxproFlutterPlugin
+    platforms:
+      android:
+        package: com.unact.iboxpro_flutter
+        pluginClass: IboxproFlutterPlugin
+      ios:
+        pluginClass: IboxproFlutterPlugin
