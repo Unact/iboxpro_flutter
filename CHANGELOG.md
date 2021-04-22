@@ -1,3 +1,8 @@
+## 1.0.0
+
+* Обновлена версия SDK для Android
+__breaking change__ Произведена миграция на null safety
+
 ## 0.2.1
 
 * Добавлена поддержка v2 android embedder
