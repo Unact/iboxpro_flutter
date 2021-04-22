@@ -358,7 +358,7 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
       handler.methodChannel.invokeMethod("onPaymentStart", arguments)
     }
 
-    override fun onReaderEvent(event: PaymentController.ReaderEvent) {
+    override fun onReaderEvent(event: PaymentController.ReaderEvent, params: MutableMap<String, String>?) {
       val arguments = HashMap<String, Any>()
 
       arguments["nativeReaderEventType"] = event.ordinal
