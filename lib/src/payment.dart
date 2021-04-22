@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
-import 'package:meta/meta.dart';
 
 import 'types.dart';
 import 'entities/entities.dart';
@@ -14,24 +13,24 @@ import 'entities/entities.dart';
 class PaymentController {
   static final MethodChannel _channel = MethodChannel('iboxpro_flutter')..setMethodCallHandler(_handleMethodCall);
 
-  static Function(String) _onPaymentStart;
-  static Function(PaymentError) _onPaymentError;
-  static Function(Transaction, bool) _onPaymentComplete;
-  static Function() _onReaderSetBTDevice;
-  static Function(ReaderEvent) _onReaderEvent;
-  static Function(Result) _onLogin;
-  static Function(Result, Transaction) _onInfo;
-  static Function(Result) _onPaymentAdjust;
-  static Function(Result) _onHistoryError;
-  static Function() _onReverseReject;
-  static Function(Result) _onReversePaymentAdjust;
+  static Function(String)? _onPaymentStart;
+  static Function(PaymentError)? _onPaymentError;
+  static Function(Transaction, bool)? _onPaymentComplete;
+  static Function()? _onReaderSetBTDevice;
+  static Function(ReaderEvent)? _onReaderEvent;
+  static Function(Result)? _onLogin;
+  static Function(Result, Transaction?)? _onInfo;
+  static Function(Result)? _onPaymentAdjust;
+  static Function(Result)? _onHistoryError;
+  static Function()? _onReverseReject;
+  static Function(Result)? _onReversePaymentAdjust;
 
   /// Производит логин в систему
   /// [onLogin] вызывается при завершении операции с результатом операции
   static Future<void> login({
-    @required String email,
-    @required String password,
-    @required Function(Result) onLogin
+    required String email,
+    required String password,
+    required Function(Result) onLogin
   }) async {
     _onLogin = onLogin;
 
@@ -57,16 +56,16 @@ class PaymentController {
   /// Важно: Если вход в систему не осуществлен или нет связи с терминалом,
   /// то операция не начнется, при этом ошибки никакой не будет
   static Future<void> startPayment({
-    @required double amount,
-    @required int inputType,
-    @required String description,
+    required double amount,
+    required int inputType,
+    required String description,
     bool singleStepAuth = false,
-    String receiptEmail,
-    String receiptPhone,
-    @required Function(String) onPaymentStart,
-    @required Function(PaymentError) onPaymentError,
-    @required Function(Transaction, bool) onPaymentComplete,
-    @required Function(ReaderEvent) onReaderEvent
+    String? receiptEmail,
+    String? receiptPhone,
+    required Function(String) onPaymentStart,
+    required Function(PaymentError) onPaymentError,
+    required Function(Transaction, bool) onPaymentComplete,
+    required Function(ReaderEvent) onReaderEvent
   }) async {
     _onPaymentStart = onPaymentStart;
     _onPaymentError = onPaymentError;
@@ -102,19 +101,19 @@ class PaymentController {
   /// Важно: Если вход в систему не осуществлен или нет связи с терминалом,
   /// то операция не начнется, при этом ошибки никакой не будет
   static Future<void> startReversePayment({
-    @required String id,
-    @required double amount,
-    @required int inputType,
-    @required String description,
+    required String id,
+    required double amount,
+    required int inputType,
+    required String description,
     bool singleStepAuth = false,
-    String receiptEmail,
-    String receiptPhone,
-    @required Function(String) onPaymentStart,
-    @required Function(PaymentError) onPaymentError,
-    @required Function(Transaction, bool) onPaymentComplete,
-    @required Function(ReaderEvent) onReaderEvent,
-    @required Function(Result) onHistoryError,
-    @required Function() onReverseReject
+    String? receiptEmail,
+    String? receiptPhone,
+    required Function(String) onPaymentStart,
+    required Function(PaymentError) onPaymentError,
+    required Function(Transaction, bool) onPaymentComplete,
+    required Function(ReaderEvent) onReaderEvent,
+    required Function(Result) onHistoryError,
+    required Function() onReverseReject
   }) async {
     _onPaymentStart = onPaymentStart;
     _onPaymentError = onPaymentError;
@@ -138,11 +137,11 @@ class PaymentController {
   ///
   /// [onPaymentAdjust] вызывается по завершению операции с результатом операции
   static Future<void> adjustPayment({
-    @required String id,
-    @required Uint8List signature,
-    String receiptEmail,
-    String receiptPhone,
-    @required Function(Result) onPaymentAdjust
+    required String id,
+    required Uint8List signature,
+    String? receiptEmail,
+    String? receiptPhone,
+    required Function(Result) onPaymentAdjust
   }) async {
     _onPaymentAdjust = onPaymentAdjust;
     await _channel.invokeMethod('adjustPayment', {
@@ -157,11 +156,11 @@ class PaymentController {
   ///
   /// [onPaymentAdjust] вызывается по завершению операции с результатом операции
   static Future<void> adjustReversePayment({
-    @required String id,
-    @required Uint8List signature,
-    String receiptEmail,
-    String receiptPhone,
-    @required Function(Result) onReversePaymentAdjust
+    required String id,
+    required Uint8List signature,
+    String? receiptEmail,
+    String? receiptPhone,
+    required Function(Result) onReversePaymentAdjust
   }) async {
     _onReversePaymentAdjust = onReversePaymentAdjust;
     await _channel.invokeMethod('adjustReversePayment', {
@@ -176,8 +175,8 @@ class PaymentController {
   ///
   /// [onInfo] вызывается по завершению операции с результатом операции
   static Future<void> info({
-    @required String id,
-    @required Function(Result, Transaction) onInfo
+    required String id,
+    required Function(Result, Transaction?) onInfo
   }) async {
     _onInfo = onInfo;
     await _channel.invokeMethod('info', {
@@ -194,8 +193,8 @@ class PaymentController {
   ///
   /// [onReaderSetBTDevice] вызывается по завершению операции с результатом операции
   static Future<void> startSearchBTDevice({
-    @required String deviceName,
-    @required Function() onReaderSetBTDevice
+    required String deviceName,
+    required Function() onReaderSetBTDevice
   }) async {
     _onReaderSetBTDevice = onReaderSetBTDevice;
 
@@ -213,14 +212,14 @@ class PaymentController {
     switch (call.method) {
       case 'onHistoryError':
         if (_onHistoryError != null) {
-          _onHistoryError(Result(errorCode: call.arguments['errorCode']));
+          _onHistoryError!(Result(errorCode: call.arguments['errorCode']));
         }
 
         break;
       case 'onInfo':
         if (_onInfo != null) {
           Map<dynamic, dynamic> arguments = call.arguments;
-          _onInfo(
+          _onInfo!(
             Result(errorCode: arguments['errorCode']),
             arguments['transaction'] != null ? Transaction.fromMap(arguments['transaction']) : null
           );
@@ -229,13 +228,13 @@ class PaymentController {
         break;
       case 'onLogin':
         if (_onLogin != null) {
-          _onLogin(Result(errorCode: call.arguments['errorCode']));
+          _onLogin!(Result(errorCode: call.arguments['errorCode']));
         }
 
         break;
       case 'onPaymentStart':
         if (_onPaymentStart != null) {
-          _onPaymentStart(call.arguments['id']);
+          _onPaymentStart!(call.arguments['id']);
         }
 
         break;
@@ -246,7 +245,7 @@ class PaymentController {
             ErrorType.fromAndroidType(arguments['nativeErrorType']) :
             ErrorType.fromIosType(arguments['nativeErrorType']);
 
-          _onPaymentError(PaymentError(
+          _onPaymentError!(PaymentError(
             type: type,
             nativeType: call.arguments['nativeErrorType'],
             message: call.arguments['errorMessage']
@@ -256,19 +255,19 @@ class PaymentController {
         break;
       case 'onPaymentComplete':
         if (_onPaymentComplete != null) {
-          _onPaymentComplete(Transaction.fromMap(call.arguments['transaction']), call.arguments['requiredSignature']);
+          _onPaymentComplete!(Transaction.fromMap(call.arguments['transaction']), call.arguments['requiredSignature']);
         }
 
         break;
       case 'onPaymentAdjust':
         if (_onPaymentAdjust != null) {
-          _onPaymentAdjust(Result(errorCode: call.arguments['errorCode']));
+          _onPaymentAdjust!(Result(errorCode: call.arguments['errorCode']));
         }
 
         break;
       case 'onReaderSetBTDevice':
         if (_onReaderSetBTDevice != null) {
-          _onReaderSetBTDevice();
+          _onReaderSetBTDevice!();
         }
 
         break;
@@ -278,20 +277,19 @@ class PaymentController {
           int type = Platform.isAndroid ?
             ReaderEventType.fromAndroidType(arguments['nativeReaderEventType']) :
             ReaderEventType.fromIosType(arguments['nativeReaderEventType']);
-
-          _onReaderEvent(ReaderEvent(type: type, nativeType: arguments['nativeReaderEventType']));
+          _onReaderEvent!(ReaderEvent(type: type, nativeType: arguments['nativeReaderEventType']));
         }
 
         break;
       case 'onReversePaymentAdjust':
         if (_onReversePaymentAdjust != null) {
-          _onReversePaymentAdjust(Result(errorCode: call.arguments['errorCode']));
+          _onReversePaymentAdjust!(Result(errorCode: call.arguments['errorCode']));
         }
 
         break;
       case 'onReverseReject':
         if (_onReverseReject != null) {
-          _onReverseReject();
+          _onReverseReject!();
         }
 
         break;

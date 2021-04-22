@@ -1,5 +1,3 @@
-import 'package:meta/meta.dart';
-
 import 'card.dart';
 
 class Transaction {
@@ -13,7 +11,7 @@ class Transaction {
   String invoice;
   String approvalCode;
   String operation;
-  String cardholderName;
+  String? cardholderName;
   String terminalName;
   double amount;
   double amountNetto;
@@ -25,32 +23,32 @@ class Transaction {
   int inputType;
   int displayMode;
   String acquirerID;
-  Card card;
+  Card? card;
 
   Transaction({
-    @required this.id,
-    @required this.rrn,
-    @required this.emvData,
-    @required this.date,
-    @required this.currencyID,
-    @required this.descriptionOfTransaction,
-    @required this.stateDisplay,
-    @required this.invoice,
-    @required this.approvalCode,
-    @required this.operation,
-    @required this.cardholderName,
-    @required this.terminalName,
-    @required this.amount,
-    @required this.amountNetto,
-    @required this.feeTotal,
-    @required this.latitude,
-    @required this.longitude,
-    @required this.state,
-    @required this.subState,
-    @required this.inputType,
-    @required this.displayMode,
-    @required this.acquirerID,
-    @required this.card,
+    required this.id,
+    required this.rrn,
+    required this.emvData,
+    required this.date,
+    required this.currencyID,
+    required this.descriptionOfTransaction,
+    required this.stateDisplay,
+    required this.invoice,
+    required this.approvalCode,
+    required this.operation,
+    required this.cardholderName,
+    required this.terminalName,
+    required this.amount,
+    required this.amountNetto,
+    required this.feeTotal,
+    required this.latitude,
+    required this.longitude,
+    required this.state,
+    required this.subState,
+    required this.inputType,
+    required this.displayMode,
+    required this.acquirerID,
+    required this.card,
   });
 
   static Transaction fromMap(dynamic map) {
@@ -105,7 +103,7 @@ class Transaction {
       'inputType': inputType,
       'displayMode': displayMode,
       'acquirerID': acquirerID,
-      'card': card != null ? card.toMap() : null,
+      'card': card != null ? card!.toMap() : null,
     };
   }
 

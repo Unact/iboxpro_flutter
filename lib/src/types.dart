@@ -106,25 +106,19 @@ class ReaderEventType {
     switch (androidType) {
       case AndroidReaderEventType.InitSuccessfully:
         return Initialized;
-        break;
       case AndroidReaderEventType.Connected:
         return Connected;
-        break;
       case AndroidReaderEventType.InitFailed:
       case AndroidReaderEventType.PaymentCanceled:
       case AndroidReaderEventType.Disconnected:
         return Disconnected;
-        break;
       case AndroidReaderEventType.SwipeCard:
         return CardSwiped;
-        break;
       case AndroidReaderEventType.NfcTransactionStarted:
       case AndroidReaderEventType.EmvTransactionStarted:
         return EMVStarted;
-        break;
       default:
         return Unknown;
-        break;
     }
   }
 
@@ -132,22 +126,16 @@ class ReaderEventType {
     switch (iosType) {
       case IosReaderEventType.Initialized:
         return Initialized;
-        break;
       case IosReaderEventType.Connected:
         return Connected;
-        break;
       case IosReaderEventType.Disconnected:
         return Disconnected;
-        break;
       case IosReaderEventType.CardSwiped:
         return CardSwiped;
-        break;
       case IosReaderEventType.EMVStarted:
         return EMVStarted;
-        break;
       default:
         return Unknown;
-        break;
     }
   }
 }
@@ -170,40 +158,28 @@ class ErrorType {
     switch (androidType) {
       case AndroidErrorType.ConnectionError:
         return ConnectionError;
-        break;
       case AndroidErrorType.ServerError:
         return ServerError;
-        break;
       case AndroidErrorType.EMVError:
         return EMVError;
-        break;
       case AndroidErrorType.EMVTerminated:
         return EMVTerminated;
-        break;
       case AndroidErrorType.EMVDeclined:
         return EMVDeclined;
-        break;
       case AndroidErrorType.EMVCancel:
         return EMVCancel;
-        break;
       case AndroidErrorType.EMVCardError:
         return EMVCardError;
-        break;
       case AndroidErrorType.EMVCardBlocked:
         return EMVCardBlocked;
-        break;
       case AndroidErrorType.EMVDeviceError:
         return EMVDeviceError;
-        break;
       case AndroidErrorType.EMVCardNotSupported:
         return EMVCardNotSupported;
-        break;
       case AndroidErrorType.EMVZeroTRA:
         return EMVZeroTRA;
-        break;
       default:
         return Unknown;
-        break;
     }
   }
 
@@ -211,40 +187,28 @@ class ErrorType {
     switch (iosType) {
       case IosErrorType.Submit:
         return ConnectionError;
-        break;
       case IosErrorType.OnlineProcess:
         return ServerError;
-        break;
       case IosErrorType.EMVError:
         return EMVError;
-        break;
       case IosErrorType.EMVTerminated:
         return EMVTerminated;
-        break;
       case IosErrorType.EMVDeclined:
         return EMVDeclined;
-        break;
       case IosErrorType.EMVCancel:
         return EMVCancel;
-        break;
       case IosErrorType.EMVCardError:
         return EMVCardError;
-        break;
       case IosErrorType.EMVCardBlocked:
         return EMVCardBlocked;
-        break;
       case IosErrorType.EMVDeviceError:
         return EMVDeviceError;
-        break;
       case IosErrorType.EMVCardNotSupported:
         return EMVCardNotSupported;
-        break;
       case IosErrorType.ZeroAmount:
         return EMVZeroTRA;
-        break;
       default:
         return Unknown;
-        break;
     }
   }
 }

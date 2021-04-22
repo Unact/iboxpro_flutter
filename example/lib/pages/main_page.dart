@@ -11,12 +11,12 @@ class MainPage extends StatefulWidget {
 
 class _MainPage extends State<MainPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _loginEmail;
-  String _password;
-  String _deviceName;
+  String _loginEmail = '';
+  String _password = '';
+  String _deviceName = '';
 
   void _showSnackBar(String content) {
-    _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(content)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(content)));
   }
 
   List<Widget> _buildLoginPart(BuildContext context) {
@@ -34,7 +34,7 @@ class _MainPage extends State<MainPage> {
         decoration: InputDecoration(labelText: 'Пароль'),
         onChanged: (val) => _password = val
       ),
-      RaisedButton(
+      ElevatedButton(
         child: Text('Войти'),
         onPressed: () async {
           showDialog(
@@ -68,7 +68,7 @@ class _MainPage extends State<MainPage> {
         decoration: InputDecoration(labelText: 'Имя терминала'),
         onChanged: (val) => _deviceName = val
       ),
-      RaisedButton(
+      ElevatedButton(
         child: Text('Подключиться к терминалу'),
         onPressed: () async {
           await PaymentController.startSearchBTDevice(
@@ -79,7 +79,7 @@ class _MainPage extends State<MainPage> {
           );
         },
       ),
-      RaisedButton(
+      ElevatedButton(
         child: Text('Перестать искать терминал'),
         onPressed: () async {
           await PaymentController.stopSearchBTDevice();
@@ -95,11 +95,11 @@ class _MainPage extends State<MainPage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
 
         children: [
-          RaisedButton(
+          ElevatedButton(
             child: Text('Оплатить'),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PaymentPage())),
           ),
-          RaisedButton(
+          ElevatedButton(
             child: Text('Вернуть'),
             onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ReversePaymentPage())),
           )

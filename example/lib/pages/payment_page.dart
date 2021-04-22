@@ -1,8 +1,10 @@
+import 'dart:typed_data';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 import 'package:iboxpro_flutter/iboxpro_flutter.dart';
-import 'package:signature_pad/signature_pad.dart';
-import 'package:signature_pad_flutter/signature_pad_flutter.dart';
+import 'package:flutter_signature_pad/flutter_signature_pad.dart';
 
 class PaymentPage extends StatefulWidget {
   @override
@@ -10,16 +12,23 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPage extends State<PaymentPage> {
+  final GlobalKey<SignatureState> _sign = GlobalKey<SignatureState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  String _id;
+  String? _id;
   bool _requiredSignature = false;
   String _paymentProgressText = 'Оплата не проводилась';
-  double _amount = 50;
+  double? _amount = 50;
   bool _inProgress = false;
-  SignaturePadController _padController = SignaturePadController();
+
+  Future<Uint8List> getSignatureData() async {
+    SignatureState? sign = _sign.currentState;
+    ByteData? data = (await (await sign!.getData()).toByteData(format: ImageByteFormat.png));
+
+    return data!.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+  }
 
   void _showSnackBar(String content) {
-    _scaffoldKey.currentState?.showSnackBar(SnackBar(content: Text(content)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(content)));
   }
 
   List<Widget> _buildPaymentPart(BuildContext context) {
@@ -40,7 +49,7 @@ class _PaymentPage extends State<PaymentPage> {
           ),
           SizedBox(
             width: 150,
-            child: RaisedButton(
+            child: ElevatedButton(
               child: Text('Оплатить'),
               onPressed: () async {
                 setState(() {
@@ -50,7 +59,7 @@ class _PaymentPage extends State<PaymentPage> {
                 });
 
                 await PaymentController.startPayment(
-                  amount: _amount,
+                  amount: _amount!,
                   inputType: InputType.NFC,
                   description: 'Тестовая оплата',
                   singleStepAuth: true,
@@ -89,7 +98,7 @@ class _PaymentPage extends State<PaymentPage> {
           ),
           !_inProgress ? Container() : SizedBox(
             width: 150,
-            child: RaisedButton(
+            child: ElevatedButton(
               child: Text('Отмена'),
               onPressed: () async {
                 await PaymentController.cancel();
@@ -111,7 +120,7 @@ class _PaymentPage extends State<PaymentPage> {
       return [Container()];
 
     return [
-      RaisedButton(
+      ElevatedButton(
         child: Text('Добавить подпись'),
         onPressed: () async {
           setState(() {
@@ -119,8 +128,8 @@ class _PaymentPage extends State<PaymentPage> {
           });
 
           await PaymentController.adjustPayment(
-            id: _id,
-            signature: await _padController.toPng(),
+            id: _id!,
+            signature: await getSignatureData(),
             onPaymentAdjust: (Result result) {
               if (result.errorCode == 0) {
                 _showSnackBar('Подпись добавлена');
@@ -141,7 +150,7 @@ class _PaymentPage extends State<PaymentPage> {
         child: SizedBox(
           height: 200,
           width: 200,
-          child: SignaturePadWidget(_padController, SignaturePadOptions(dotSize: 5.0, penColor: "#000000"))
+          child: Signature(key: _sign, strokeWidth: 5)
         )
       )
     ];
@@ -157,15 +166,15 @@ class _PaymentPage extends State<PaymentPage> {
         children: [
           SizedBox(
             width: 200,
-            child: RaisedButton(
+            child: ElevatedButton(
               child: Text('Информация об оплате'),
               onPressed: () async {
                 setState(() {
                   _inProgress = true;
                 });
                 await PaymentController.info(
-                  id: _id,
-                  onInfo: (Result result, Transaction transaction) {
+                  id: _id!,
+                  onInfo: (Result result, Transaction? transaction) {
                     setState(() {
                       _inProgress = false;
                     });
