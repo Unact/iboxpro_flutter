@@ -18,6 +18,10 @@ rootProject.allprojects {
     repositories {
         google()
         jcenter()
+
+        flatDir {
+            dirs project(':iboxpro_flutter').file('libs')
+        }
     }
 }
 
@@ -37,14 +41,9 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
-    repositories {
-        flatDir {
-            dirs 'libs'
-        }
-    }
 }
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation fileTree(include: ['*.aar'], dir: 'libs')
+    implementation (name: 'ibox.pro.sdk.external', ext: 'aar')
 }
