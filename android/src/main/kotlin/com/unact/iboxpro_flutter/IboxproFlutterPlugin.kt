@@ -32,16 +32,5 @@ class IboxproFlutterPlugin: FlutterPlugin {
 
   companion object {
     private const val CHANNEL_ID = "iboxpro_flutter"
-
-    @Suppress("unused")
-    fun registerWith(registrar: Registrar) {
-      if (registrar.activity() == null) {
-        // When a background flutter view tries to register the plugin, the registrar has no activity.
-        // We stop the registration process as this plugin is foreground only.
-        return
-      }
-
-      IboxproFlutterPlugin().setupIboxproFlutterChannel(registrar.messenger(), registrar.context())
-    }
   }
 }
