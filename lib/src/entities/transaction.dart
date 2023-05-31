@@ -1,15 +1,16 @@
 import 'card.dart';
+import 'external_payment_data.dart';
 
 class Transaction {
   String id;
-  String rrn;
-  Map<dynamic, dynamic> emvData;
+  String? rrn;
+  Map<dynamic, dynamic>? emvData;
   String date;
   String currencyID;
   String descriptionOfTransaction;
   String stateDisplay;
   String invoice;
-  String approvalCode;
+  String? approvalCode;
   String operation;
   String? cardholderName;
   String terminalName;
@@ -24,6 +25,10 @@ class Transaction {
   int displayMode;
   String acquirerID;
   Card? card;
+  List<ExternalPaymentData> externalPaymentData;
+  bool isNotFinished;
+  bool canCancel;
+  bool canReturn;
 
   Transaction({
     required this.id,
@@ -49,6 +54,10 @@ class Transaction {
     required this.displayMode,
     required this.acquirerID,
     required this.card,
+    required this.externalPaymentData,
+    required this.isNotFinished,
+    required this.canCancel,
+    required this.canReturn,
   });
 
   static Transaction fromMap(dynamic map) {
@@ -76,6 +85,11 @@ class Transaction {
       displayMode: map['displayMode'],
       acquirerID: map['acquirerID'],
       card: map['card'] != null ? Card.fromMap(map['card']) : null,
+      externalPaymentData: map['externalPaymentData']
+        .map<ExternalPaymentData>((e) => ExternalPaymentData.fromMap(e)).toList(),
+      isNotFinished: map['isNotFinished'],
+      canCancel: map['canCancel'],
+      canReturn: map['canReturn']
     );
   }
 
@@ -104,6 +118,10 @@ class Transaction {
       'displayMode': displayMode,
       'acquirerID': acquirerID,
       'card': card != null ? card!.toMap() : null,
+      'externalPaymentData': externalPaymentData.map((e) => e.toMap()).toList(),
+      'isNotFinished': isNotFinished,
+      'canCancel': canCancel,
+      'canReturn': canReturn,
     };
   }
 

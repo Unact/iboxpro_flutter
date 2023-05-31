@@ -1,5 +1,8 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package com.unact.iboxpro_flutter
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.os.Handler
@@ -44,10 +47,16 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
   companion object {
     const val apiError = -1
 
-    fun formatTransactionItem(transactionItem: TransactionItem): HashMap<String, Any> {
-      var result = HashMap<String, Any>()
-      var resultCard = HashMap<String, Any?>()
-      var card = transactionItem.card
+    fun formatTransactionItem(transactionItem: TransactionItem): HashMap<String, Any?> {
+      val result = HashMap<String, Any?>()
+      val resultCard = HashMap<String, Any?>()
+      val card = transactionItem.card
+
+      resultCard["iin"] = card?.iin
+      resultCard["expiration"] = card?.exp
+      resultCard["panMasked"] = card?.panMasked
+      resultCard["panEnding"] = card?.panEnding
+      resultCard["binID"] = card?.bin
 
       result["id"] = transactionItem.id
       result["rrn"] = transactionItem.rrn
@@ -71,12 +80,16 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
       result["inputType"] = transactionItem.inputType.value
       result["displayMode"] = transactionItem.displayMode.ordinal
       result["acquirerID"] = transactionItem.json["AcquirerID"]
+      result["isNotFinished"] = transactionItem.json["IsNotFinished"]
+      result["canCancel"] = transactionItem.json["CanCancel"]
+      result["canReturn"] = transactionItem.json["CanReturn"]
+      result["externalPaymentData"] = transactionItem.externalPayment.qr.map {
+        val res = HashMap<String, Any?>()
+        res["title"] = it.key
+        res["value"] = it.value
+        res
+      }
       result["card"] = resultCard
-      resultCard["iin"] = card?.iin
-      resultCard["expiration"] = card?.exp
-      resultCard["panMasked"] = card?.panMasked
-      resultCard["panEnding"] = card?.panEnding
-      resultCard["binID"] = card?.bin
 
       return result
     }
@@ -132,11 +145,16 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
     val res = paymentController.getTransactionByID(currentActivity, params["id"] as String)
     val arguments = checkResult(res)
 
-    if (arguments["errorCode"] == 0 && res.transactions.isNotEmpty()) {
-      val transactionItem = res.transactions.first()
-      val formattedData = formatTransactionItem(transactionItem)
+    if (arguments["errorCode"] == 0) {
+      var transactionItem : TransactionItem? = null
+      if (res.transactions.isNotEmpty()) transactionItem = res.transactions.first()
+      if (res.inProcessTransactions.isNotEmpty()) transactionItem = res.inProcessTransactions.first()
 
-      arguments["transaction"] = formattedData
+      if (transactionItem != null) {
+        val formattedData = formatTransactionItem(transactionItem)
+
+        arguments["transaction"] = formattedData
+      }
     }
 
     methodChannel.invokeMethod("onInfo", arguments)
@@ -172,10 +190,12 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
     isSingleStepEMV = singleStepAuth
 
     paymentController.enable()
+    if (paymentContext!!.method != PaymentController.PaymentMethod.CARD) beginPayment()
   }
 
   private fun startReversePayment(call: MethodCall) {
     val params = call.arguments as HashMap<String, Any>
+    val inputType = PaymentController.PaymentInputType.fromValue(params["inputType"] as Int)
     val amount = params["amount"] as Double
     val email = params["receiptEmail"] as? String
     val phone = params["receiptPhone"] as? String
@@ -183,42 +203,51 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
     val res = paymentController.getTransactionByID(currentActivity, params["id"] as String)
     val arguments = checkResult(res)
 
-    if (arguments["errorCode"] == 0 && res.transactions.isNotEmpty()) {
-      val transactionItem = res.transactions.first()
-      var action:PaymentController.ReverseAction? = null
-
-      if (
-        transactionItem.canCancel() ||
-        transactionItem.canCancelPartial() ||
-        transactionItem.canCancelCNP() ||
-        transactionItem.canCancelCNPPartial()
-      ) {
-        action = PaymentController.ReverseAction.CANCEL
-      }
-
-      if (transactionItem.canReturn() || transactionItem.canReturnPartial()) {
-        action = PaymentController.ReverseAction.RETURN
-      }
-
-      if (action == null) {
-        methodChannel.invokeMethod("onReverseReject", arguments)
-        return
-      }
-
-      reversePaymentContext = ReversePaymentContext()
-      reversePaymentContext?.action = action
-      reversePaymentContext?.transactionID = transactionItem.id
-      reversePaymentContext?.currency = PaymentController.Currency.RUB
-      reversePaymentContext?.returnAmount = amount
-      reversePaymentContext?.receiptEmail = email
-      reversePaymentContext?.receiptPhone = phone
-
-      isSingleStepEMV = singleStepAuth
-
-      paymentController.enable()
-    } else {
-      methodChannel.invokeMethod("onHistoryError", arguments)
+    if (arguments["errorCode"] != 0) {
+      methodChannel.invokeMethod("onInfoError", arguments)
+      return
     }
+
+    var transactionItem : TransactionItem? = null
+    var action : PaymentController.ReverseAction? = null
+    if (res.transactions.isNotEmpty()) transactionItem = res.transactions.first()
+    if (res.inProcessTransactions.isNotEmpty()) transactionItem = res.inProcessTransactions.first()
+
+    if (transactionItem == null) {
+      methodChannel.invokeMethod("onInfoError", arguments)
+      return
+    }
+
+    if (
+      transactionItem.canCancel() ||
+      transactionItem.canCancelPartial() ||
+      transactionItem.canCancelCNP() ||
+      transactionItem.canCancelCNPPartial()
+    ) {
+      action = PaymentController.ReverseAction.CANCEL
+    }
+
+    if (transactionItem.canReturn() || transactionItem.canReturnPartial()) {
+      action = PaymentController.ReverseAction.RETURN
+    }
+
+    if (action == null) {
+      methodChannel.invokeMethod("onReverseReject", arguments)
+      return
+    }
+
+    reversePaymentContext = ReversePaymentContext()
+    reversePaymentContext?.action = action
+    reversePaymentContext?.transactionID = transactionItem.id
+    reversePaymentContext?.currency = PaymentController.Currency.RUB
+    reversePaymentContext?.returnAmount = amount
+    reversePaymentContext?.receiptEmail = email
+    reversePaymentContext?.receiptPhone = phone
+
+    isSingleStepEMV = singleStepAuth
+
+    paymentController.enable()
+    if (methodFromInputType(inputType) != PaymentController.PaymentMethod.CARD) beginPayment()
   }
 
   private fun startSearchBTDevice(call: MethodCall) {
@@ -291,7 +320,7 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
   private fun checkResult(res: APIResult): HashMap<String, Any?> {
     val arguments = HashMap<String, Any?>()
 
-    if (res != null && res.isValid) {
+    if (res.isValid) {
       arguments["errorCode"] = res.errorCode
       arguments["errorMessage"] = res.errorMessage
     } else {
@@ -312,6 +341,7 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
     paymentController.isSingleStepEMV = isSingleStepEMV
   }
 
+  @SuppressLint("MissingPermission")
   private fun searchBTDevice() {
     if (!searchDevice) return
 
@@ -319,12 +349,16 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
       val devices = paymentController.getBluetoothDevices(currentActivity)
 
       if (devices.isNotEmpty()) {
-        var device = devices.find { it.name == deviceName }
+        val device = devices.find { it.name == deviceName }
 
         if (device != null) {
+          val arguments = HashMap<String, Any>()
+
+          arguments["name"] = device.name
+
           searchDevice = false
           paymentController.setReaderType(currentActivity, PaymentController.ReaderType.P17, device.address)
-          methodChannel.invokeMethod("onReaderSetBTDevice", null)
+          methodChannel.invokeMethod("onReaderSetBTDevice", arguments)
         }
       }
 
@@ -374,6 +408,12 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
         PaymentController.ReaderEvent.CARD_TIMEOUT,
         PaymentController.ReaderEvent.PIN_TIMEOUT -> handler.disable()
         PaymentController.ReaderEvent.INIT_SUCCESSFULLY -> handler.beginPayment()
+        PaymentController.ReaderEvent.CONNECTED,
+        PaymentController.ReaderEvent.START_INIT,
+        PaymentController.ReaderEvent.SWIPE_CARD,
+        PaymentController.ReaderEvent.EMV_TRANSACTION_STARTED,
+        PaymentController.ReaderEvent.NFC_TRANSACTION_STARTED,
+        PaymentController.ReaderEvent.WAITING_FOR_CARD -> {}
       }
 
       handler.methodChannel.invokeMethod("onReaderEvent", arguments)

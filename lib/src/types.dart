@@ -1,214 +1,214 @@
 class InputType {
-  static const int Manual = 1;
-  static const int Swipe = 2;
-  static const int EMV = 3;
-  static const int NFC = 4;
-  static const int Prepaid = 8;
-  static const int Credit = 9;
-  static const int Cash = 10;
-  static const int Link = 30;
+  static const int manual = 1;
+  static const int swipe = 2;
+  static const int emv = 3;
+  static const int nfc = 4;
+  static const int prepaid = 8;
+  static const int credit = 9;
+  static const int cash = 10;
+  static const int link = 30;
 }
 
 class IosReaderEventType {
-  static const int Initialized = 0;
-  static const int Connected = 1;
-  static const int Disconnected = 2;
-  static const int CardInserted = 3;
-  static const int CardSwiped = 4;
-  static const int EMVStarted = 5;
+  static const int initialized = 0;
+  static const int connected = 1;
+  static const int disconnected = 2;
+  static const int cardInserted = 3;
+  static const int cardSwiped = 4;
+  static const int emvStarted = 5;
 }
 
 class IosErrorType {
-  static const int Common = 0;
-  static const int ZeroAmount = 1;
-  static const int CardInsertedWrong = 2;
-  static const int ReaderDisconnected = 3;
-  static const int ReaderTimeout = 4;
-  static const int Submit = 5;
-  static const int SubmitCash = 6;
-  static const int SubmitPrepaid = 7;
-  static const int SubmitCredit = 8;
-  static const int SubmitOuterCard = 9;
-  static const int SubmitLink = 10;
-  static const int Swipe = 11;
-  static const int OnlineProcess = 12;
-  static const int Reverse = 13;
-  static const int ReverseCash = 14;
-  static const int ReversePrepaid = 15;
-  static const int ReverseCredit = 16;
-  static const int ReverseOuterCard = 17;
-  static const int ReverseLink = 18;
-  static const int ReverseCNP = 19;
-  static const int ReverseCAuto = 20;
-  static const int ScheduleSteps = 21;
-  static const int EMVError = 22;
-  static const int EMVTerminated = 23;
-  static const int EMVDeclined = 24;
-  static const int EMVCancel = 25;
-  static const int EMVCardError = 26;
-  static const int EMVCardBlocked = 27;
-  static const int EMVDeviceError = 28;
-  static const int EMVCardNotSupported = 29;
+  static const int common = 0;
+  static const int zeroAmount = 1;
+  static const int cardInsertedWrong = 2;
+  static const int readerDisconnected = 3;
+  static const int readerTimeout = 4;
+  static const int submit = 5;
+  static const int submitCash = 6;
+  static const int submitPrepaid = 7;
+  static const int submitCredit = 8;
+  static const int submitOuterCard = 9;
+  static const int submitLink = 10;
+  static const int swipe = 11;
+  static const int onlineProcess = 12;
+  static const int reverse = 13;
+  static const int reverseCash = 14;
+  static const int reversePrepaid = 15;
+  static const int reverseCredit = 16;
+  static const int reverseOuterCard = 17;
+  static const int reverseLink = 18;
+  static const int reverseCNP = 19;
+  static const int reverseCAuto = 20;
+  static const int scheduleSteps = 21;
+  static const int emvError = 22;
+  static const int emvTerminated = 23;
+  static const int emvDeclined = 24;
+  static const int emvCancel = 25;
+  static const int emvCardError = 26;
+  static const int emvCardBlocked = 27;
+  static const int emvDeviceError = 28;
+  static const int emvCardNotSupported = 29;
 }
 
 class AndroidReaderEventType {
-  static const int Connected = 0;
-  static const int Disconnected = 1;
-  static const int StartInit = 2;
-  static const int InitSuccessfully = 3;
-  static const int InitFailed = 4;
-  static const int EjectCardTimeout = 5;
-  static const int SwipeCard = 6;
-  static const int EmvTransactionStarted = 7;
-  static const int NfcTransactionStarted = 8;
-  static const int WaitingForCard = 9;
-  static const int PaymentCanceled = 10;
-  static const int EjectCard = 11;
-  static const int BadSwipe = 12;
-  static const int LowBattery = 13;
-  static const int CardTimeout = 14;
-  static const int PinTimeout = 15;
+  static const int connected = 0;
+  static const int disconnected = 1;
+  static const int startInit = 2;
+  static const int initSuccessfully = 3;
+  static const int initFailed = 4;
+  static const int ejectCardTimeout = 5;
+  static const int swipeCard = 6;
+  static const int emvTransactionStarted = 7;
+  static const int nfcTransactionStarted = 8;
+  static const int waitingForCard = 9;
+  static const int paymentCanceled = 10;
+  static const int ejectCard = 11;
+  static const int badSwipe = 12;
+  static const int lowBattery = 13;
+  static const int cardTimeout = 14;
+  static const int pinTimeout = 15;
 }
 
 class AndroidErrorType {
-  static const int ConnectionError = 0;
-  static const int ServerError = 1;
-  static const int TransactionNullOrEmpty = 2;
-  static const int TtkFailed = 3;
-  static const int ExtAppFailed = 4;
-  static const int NoSuchTransaction = 5;
-  static const int InvalidInputType = 6;
-  static const int InvalidAmount = 7;
-  static const int EMVError = 8;
-  static const int EMVTerminated = 9;
-  static const int EMVDeclined = 10;
-  static const int EMVCancel = 11;
-  static const int EMVCardError = 12;
-  static const int EMVCardBlocked = 13;
-  static const int EMVDeviceError = 14;
-  static const int EMVCardNotSupported = 15;
-  static const int EMVZeroTRA = 16;
-  static const int EMVNotAllowed = 17;
-  static const int NFCNotAllowed = 18;
-  static const int NFCLimitExceeded = 19;
-  static const int SwipeNotAllowed = 20;
+  static const int connectionError = 0;
+  static const int serverError = 1;
+  static const int transactionNullOrEmpty = 2;
+  static const int ttkFailed = 3;
+  static const int extAppFailed = 4;
+  static const int noSuchTransaction = 5;
+  static const int invalidInputType = 6;
+  static const int invalidAmount = 7;
+  static const int emvError = 8;
+  static const int emvTerminated = 9;
+  static const int emvDeclined = 10;
+  static const int emvCancel = 11;
+  static const int emvCardError = 12;
+  static const int emvCardBlocked = 13;
+  static const int emvDeviceError = 14;
+  static const int emvCardNotSupported = 15;
+  static const int emvZeroTRA = 16;
+  static const int emvNotAllowed = 17;
+  static const int nfcNotAllowed = 18;
+  static const int nfcLimitExceeded = 19;
+  static const int swipeNotAllowed = 20;
 }
 
 class ReaderEventType {
-  static const int Unknown = -1;
-  static const int Initialized = 0;
-  static const int Connected = 1;
-  static const int Disconnected = 2;
-  static const int CardSwiped = 3;
-  static const int EMVStarted = 4;
+  static const int unknown = -1;
+  static const int initialized = 0;
+  static const int connected = 1;
+  static const int disconnected = 2;
+  static const int cardSwiped = 3;
+  static const int emvStarted = 4;
 
   static int fromAndroidType(int androidType) {
     switch (androidType) {
-      case AndroidReaderEventType.InitSuccessfully:
-        return Initialized;
-      case AndroidReaderEventType.Connected:
-        return Connected;
-      case AndroidReaderEventType.InitFailed:
-      case AndroidReaderEventType.PaymentCanceled:
-      case AndroidReaderEventType.Disconnected:
-        return Disconnected;
-      case AndroidReaderEventType.SwipeCard:
-        return CardSwiped;
-      case AndroidReaderEventType.NfcTransactionStarted:
-      case AndroidReaderEventType.EmvTransactionStarted:
-        return EMVStarted;
+      case AndroidReaderEventType.initSuccessfully:
+        return initialized;
+      case AndroidReaderEventType.connected:
+        return connected;
+      case AndroidReaderEventType.initFailed:
+      case AndroidReaderEventType.paymentCanceled:
+      case AndroidReaderEventType.disconnected:
+        return disconnected;
+      case AndroidReaderEventType.swipeCard:
+        return cardSwiped;
+      case AndroidReaderEventType.nfcTransactionStarted:
+      case AndroidReaderEventType.emvTransactionStarted:
+        return emvStarted;
       default:
-        return Unknown;
+        return unknown;
     }
   }
 
   static int fromIosType(int iosType) {
     switch (iosType) {
-      case IosReaderEventType.Initialized:
-        return Initialized;
-      case IosReaderEventType.Connected:
-        return Connected;
-      case IosReaderEventType.Disconnected:
-        return Disconnected;
-      case IosReaderEventType.CardSwiped:
-        return CardSwiped;
-      case IosReaderEventType.EMVStarted:
-        return EMVStarted;
+      case IosReaderEventType.initialized:
+        return initialized;
+      case IosReaderEventType.connected:
+        return connected;
+      case IosReaderEventType.disconnected:
+        return disconnected;
+      case IosReaderEventType.cardSwiped:
+        return cardSwiped;
+      case IosReaderEventType.emvStarted:
+        return emvStarted;
       default:
-        return Unknown;
+        return unknown;
     }
   }
 }
 
 class ErrorType {
-  static const int Unknown = -1;
-  static const int ConnectionError = 0;
-  static const int ServerError = 1;
-  static const int EMVError = 2;
-  static const int EMVTerminated = 3;
-  static const int EMVDeclined = 4;
-  static const int EMVCancel = 5;
-  static const int EMVCardError = 6;
-  static const int EMVCardBlocked = 7;
-  static const int EMVDeviceError = 8;
-  static const int EMVCardNotSupported = 9;
-  static const int EMVZeroTRA = 10;
+  static const int unknown = -1;
+  static const int connectionError = 0;
+  static const int serverError = 1;
+  static const int emvError = 2;
+  static const int emvTerminated = 3;
+  static const int emvDeclined = 4;
+  static const int emvCancel = 5;
+  static const int emvCardError = 6;
+  static const int emvCardBlocked = 7;
+  static const int emvDeviceError = 8;
+  static const int emvCardNotSupported = 9;
+  static const int emvZeroTRA = 10;
 
   static int fromAndroidType(int androidType) {
     switch (androidType) {
-      case AndroidErrorType.ConnectionError:
-        return ConnectionError;
-      case AndroidErrorType.ServerError:
-        return ServerError;
-      case AndroidErrorType.EMVError:
-        return EMVError;
-      case AndroidErrorType.EMVTerminated:
-        return EMVTerminated;
-      case AndroidErrorType.EMVDeclined:
-        return EMVDeclined;
-      case AndroidErrorType.EMVCancel:
-        return EMVCancel;
-      case AndroidErrorType.EMVCardError:
-        return EMVCardError;
-      case AndroidErrorType.EMVCardBlocked:
-        return EMVCardBlocked;
-      case AndroidErrorType.EMVDeviceError:
-        return EMVDeviceError;
-      case AndroidErrorType.EMVCardNotSupported:
-        return EMVCardNotSupported;
-      case AndroidErrorType.EMVZeroTRA:
-        return EMVZeroTRA;
+      case AndroidErrorType.connectionError:
+        return connectionError;
+      case AndroidErrorType.serverError:
+        return serverError;
+      case AndroidErrorType.emvError:
+        return emvError;
+      case AndroidErrorType.emvTerminated:
+        return emvTerminated;
+      case AndroidErrorType.emvDeclined:
+        return emvDeclined;
+      case AndroidErrorType.emvCancel:
+        return emvCancel;
+      case AndroidErrorType.emvCardError:
+        return emvCardError;
+      case AndroidErrorType.emvCardBlocked:
+        return emvCardBlocked;
+      case AndroidErrorType.emvDeviceError:
+        return emvDeviceError;
+      case AndroidErrorType.emvCardNotSupported:
+        return emvCardNotSupported;
+      case AndroidErrorType.emvZeroTRA:
+        return emvZeroTRA;
       default:
-        return Unknown;
+        return unknown;
     }
   }
 
   static int fromIosType(int iosType) {
     switch (iosType) {
-      case IosErrorType.Submit:
-        return ConnectionError;
-      case IosErrorType.OnlineProcess:
-        return ServerError;
-      case IosErrorType.EMVError:
-        return EMVError;
-      case IosErrorType.EMVTerminated:
-        return EMVTerminated;
-      case IosErrorType.EMVDeclined:
-        return EMVDeclined;
-      case IosErrorType.EMVCancel:
-        return EMVCancel;
-      case IosErrorType.EMVCardError:
-        return EMVCardError;
-      case IosErrorType.EMVCardBlocked:
-        return EMVCardBlocked;
-      case IosErrorType.EMVDeviceError:
-        return EMVDeviceError;
-      case IosErrorType.EMVCardNotSupported:
-        return EMVCardNotSupported;
-      case IosErrorType.ZeroAmount:
-        return EMVZeroTRA;
+      case IosErrorType.submit:
+        return connectionError;
+      case IosErrorType.onlineProcess:
+        return serverError;
+      case IosErrorType.emvError:
+        return emvError;
+      case IosErrorType.emvTerminated:
+        return emvTerminated;
+      case IosErrorType.emvDeclined:
+        return emvDeclined;
+      case IosErrorType.emvCancel:
+        return emvCancel;
+      case IosErrorType.emvCardError:
+        return emvCardError;
+      case IosErrorType.emvCardBlocked:
+        return emvCardBlocked;
+      case IosErrorType.emvDeviceError:
+        return emvDeviceError;
+      case IosErrorType.emvCardNotSupported:
+        return emvCardNotSupported;
+      case IosErrorType.zeroAmount:
+        return emvZeroTRA;
       default:
-        return Unknown;
+        return unknown;
     }
   }
 }

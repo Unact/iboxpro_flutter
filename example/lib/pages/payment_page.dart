@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -12,6 +13,11 @@ class PaymentPage extends StatefulWidget {
 }
 
 class _PaymentPage extends State<PaymentPage> {
+   static List<Map<String, dynamic>> paymentTypes = [
+    {'name': 'NFC', 'value': InputType.nfc},
+    {'name': 'Link', 'value': InputType.link}
+  ];
+
   final GlobalKey<SignatureState> _sign = GlobalKey<SignatureState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String? _id;
@@ -19,6 +25,93 @@ class _PaymentPage extends State<PaymentPage> {
   String _paymentProgressText = 'Оплата не проводилась';
   double? _amount = 50;
   bool _inProgress = false;
+  Map<String, dynamic> _paymentType = paymentTypes.first;
+
+  late StreamSubscription<PaymentErrorEvent> _onPaymentErrorSubscription;
+  late StreamSubscription<PaymentStartEvent> _onPaymentStartSubscription;
+  late StreamSubscription<PaymentReaderEvent> _onReaderSubscription;
+  late StreamSubscription<PaymentCompleteEvent> _onPaymentCompleteSubscription;
+  late StreamSubscription<PaymentInfoEvent> _onInfoSubscription;
+  late StreamSubscription<PaymentAdjustEvent> _onPaymentAdjustSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _onPaymentErrorSubscription = PaymentController.onPaymentError.listen((event) {
+      PaymentError error = event.error;
+
+      setState(() {
+        String fullErrorType = '${error.type}/${error.nativeType}';
+
+        _inProgress = false;
+        _showSnackBar('Ошибка(${error.message}) $fullErrorType');
+      });
+    });
+    _onPaymentStartSubscription = PaymentController.onPaymentStart.listen((event) {
+      setState(() {
+        _id = event.id;
+        _paymentProgressText = 'Начало операции оплаты';
+      });
+    });
+    _onReaderSubscription = PaymentController.onReader.listen((event) {
+      ReaderEvent readerEvent = event.readerEvent;
+
+      setState(() {
+        String fullReaderEventType = '${readerEvent.type}/${readerEvent.nativeType}';
+        _paymentProgressText = 'Состояние терминала - $fullReaderEventType';
+      });
+    });
+    _onPaymentCompleteSubscription = PaymentController.onPaymentComplete.listen((event) {
+      setState(() {
+        _inProgress = false;
+        _paymentProgressText = !event.transaction.isNotFinished ? 'Оплата завершена успешно' : 'Ожидание оплаты';
+        _id = event.transaction.id;
+        _requiredSignature = event.requiredSignature;
+        print(event.transaction.toMap());
+      });
+    });
+    _onInfoSubscription = PaymentController.onInfo.listen((event) {
+      setState(() {
+        _inProgress = false;
+      });
+
+      if (event.result.errorCode == 0) {
+        if (event.transaction != null) {
+          print(event.transaction!.toMap());
+        } else {
+          _showSnackBar('Оплата не найдена');
+        }
+
+        return;
+      }
+
+      _showSnackBar('Ошибка ${event.result.errorCode}');
+    });
+    _onPaymentAdjustSubscription = PaymentController.onPaymentAdjust.listen((event) {
+      if (event.result.errorCode == 0) {
+        _showSnackBar('Подпись добавлена');
+        setState(() {
+          _inProgress = false;
+          _requiredSignature = false;
+        });
+      } else {
+        _showSnackBar('Ошибка ${event.result.errorCode}');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _onPaymentErrorSubscription.cancel();
+    _onPaymentStartSubscription.cancel();
+    _onReaderSubscription.cancel();
+    _onPaymentCompleteSubscription.cancel();
+    _onInfoSubscription.cancel();
+    _onPaymentAdjustSubscription.cancel();
+  }
 
   Future<Uint8List> getSignatureData() async {
     SignatureState? sign = _sign.currentState;
@@ -41,6 +134,16 @@ class _PaymentPage extends State<PaymentPage> {
             controller: TextEditingController(text: _id),
             onChanged: (value) => _id = value,
           ),
+          DropdownButton(
+            value: _paymentType,
+            items: paymentTypes.map((e) {
+              return DropdownMenuItem(
+                value: e,
+                child: Text(e['name'])
+              );
+            }).toList(),
+            onChanged: (Map<String, dynamic>? value) => setState(() { _paymentType = value!; })
+          ),
           TextFormField(
             maxLines: 1,
             decoration: InputDecoration(labelText: 'Сумма оплаты'),
@@ -60,38 +163,9 @@ class _PaymentPage extends State<PaymentPage> {
 
                 await PaymentController.startPayment(
                   amount: _amount!,
-                  inputType: InputType.NFC,
+                  inputType: _paymentType['value'],
                   description: 'Тестовая оплата',
-                  singleStepAuth: true,
-                  onPaymentError: (PaymentError error) {
-                    setState(() {
-                      String fullErrorType = '${error.type}/${error.nativeType}';
-
-                      _inProgress = false;
-                      _showSnackBar('Ошибка(${error.message}) $fullErrorType');
-                    });
-                  },
-                  onPaymentStart: (String val) {
-                    setState(() {
-                      _id = val;
-                      _paymentProgressText = 'Начало операции оплаты';
-                    });
-                  },
-                  onReaderEvent: (ReaderEvent event) {
-                    setState(() {
-                      String fullReaderEventType = '${event.type}/${event.nativeType}';
-                      _paymentProgressText = 'Состояние терминала - $fullReaderEventType';
-                    });
-                  },
-                  onPaymentComplete: (Transaction transaction, bool requiredSignature) {
-                    setState(() {
-                      _inProgress = false;
-                      _showSnackBar('Оплата завершена успешно');
-                      _id = transaction.id;
-                      _requiredSignature = requiredSignature;
-                      print(transaction);
-                    });
-                  }
+                  singleStepAuth: true
                 );
               },
             )
@@ -127,21 +201,7 @@ class _PaymentPage extends State<PaymentPage> {
             _inProgress = true;
           });
 
-          await PaymentController.adjustPayment(
-            id: _id!,
-            signature: await getSignatureData(),
-            onPaymentAdjust: (Result result) {
-              if (result.errorCode == 0) {
-                _showSnackBar('Подпись добавлена');
-                setState(() {
-                  _inProgress = false;
-                  _requiredSignature = false;
-                });
-              } else {
-                _showSnackBar('Ошибка ${result.errorCode}');
-              }
-            }
-          );
+          await PaymentController.adjustPayment(id: _id!, signature: await getSignatureData());
       }),
       Container(
         decoration: BoxDecoration(
@@ -172,26 +232,7 @@ class _PaymentPage extends State<PaymentPage> {
                 setState(() {
                   _inProgress = true;
                 });
-                await PaymentController.info(
-                  id: _id!,
-                  onInfo: (Result result, Transaction? transaction) {
-                    setState(() {
-                      _inProgress = false;
-                    });
-
-                    if (result.errorCode == 0) {
-                      if (transaction != null) {
-                        print(transaction.toMap());
-                      } else {
-                        _showSnackBar('Оплата не найдена');
-                      }
-
-                      return;
-                    }
-
-                    _showSnackBar('Ошибка ${result.errorCode}');
-                  }
-                );
+                await PaymentController.info(id: _id!);
               }
             )
           )

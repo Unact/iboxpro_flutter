@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -19,6 +20,100 @@ class _ReversePaymentPage extends State<ReversePaymentPage> {
   double? _amount = 50;
   bool _inProgress = false;
   final _sign = GlobalKey<SignatureState>();
+
+  late final StreamSubscription<PaymentErrorEvent> _onPaymentErrorSubscription;
+  late final StreamSubscription<PaymentStartEvent> _onPaymentStartSubscription;
+  late final StreamSubscription<PaymentReaderEvent> _onReaderSubscription;
+  late final StreamSubscription<PaymentCompleteEvent> _onPaymentCompleteSubscription;
+  late final StreamSubscription<PaymentRejectReverseEvent> _onRejectReverseSubscription;
+  late final StreamSubscription<PaymentInfoEvent> _onInfoSubscription;
+  late final StreamSubscription<PaymentAdjustReverseEvent> _onPaymentAdjustReverseSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _onPaymentErrorSubscription = PaymentController.onPaymentError.listen((event) {
+      PaymentError error = event.error;
+
+      setState(() {
+        String fullErrorType = '${error.type}/${error.nativeType}';
+
+        _inProgress = false;
+        _showSnackBar('Ошибка(${error.message}) $fullErrorType');
+      });
+    });
+    _onPaymentStartSubscription = PaymentController.onPaymentStart.listen((event) {
+      setState(() {
+        _id = event.id;
+        _paymentProgressText = 'Начало операции возврата';
+      });
+    });
+    _onReaderSubscription = PaymentController.onReader.listen((event) {
+      ReaderEvent readerEvent = event.readerEvent;
+
+      setState(() {
+        String fullReaderEventType = '${readerEvent.type}/${readerEvent.nativeType}';
+        _paymentProgressText = 'Состояние терминала - $fullReaderEventType';
+      });
+    });
+    _onPaymentCompleteSubscription = PaymentController.onPaymentComplete.listen((event) {
+      setState(() {
+        _inProgress = false;
+        _paymentProgressText = !event.transaction.isNotFinished ? 'Возврат завершен успешно' : 'Ожидание возврата';
+        _id = event.transaction.id;
+        _requiredSignature = event.requiredSignature;
+        print(event.transaction);
+      });
+    });
+    _onRejectReverseSubscription = PaymentController.onRejectReverse.listen((event) {
+      setState(() {
+        _inProgress = false;
+        _showSnackBar('Ошибка. Возврат не возможен');
+      });
+    });
+    _onInfoSubscription = PaymentController.onInfo.listen((event) {
+      setState(() {
+        _inProgress = false;
+      });
+
+      if (event.result.errorCode == 0) {
+        if (event.transaction != null) {
+          print(event.transaction!.toMap());
+        } else {
+          _showSnackBar('Оплата не найдена');
+        }
+
+        return;
+      }
+
+      _showSnackBar('Ошибка ${event.result.errorCode}');
+    });
+    _onPaymentAdjustReverseSubscription = PaymentController.onPaymentAdjustReverse.listen((event) {
+      if (event.result.errorCode == 0) {
+        _showSnackBar('Подпись добавлена');
+        setState(() {
+          _inProgress = false;
+          _requiredSignature = false;
+        });
+      } else {
+        _showSnackBar('Ошибка ${event.result.errorCode}');
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _onPaymentErrorSubscription.cancel();
+    _onPaymentStartSubscription.cancel();
+    _onReaderSubscription.cancel();
+    _onPaymentCompleteSubscription.cancel();
+    _onRejectReverseSubscription.cancel();
+    _onInfoSubscription.cancel();
+    _onPaymentAdjustReverseSubscription.cancel();
+  }
 
   Future<Uint8List> getSignatureData() async {
     SignatureState? sign = _sign.currentState;
@@ -65,50 +160,8 @@ class _ReversePaymentPage extends State<ReversePaymentPage> {
                 await PaymentController.startReversePayment(
                   id: _id!,
                   amount: _amount!,
-                  inputType: InputType.NFC,
                   description: 'Тестовая оплата',
-                  singleStepAuth: true,
-                  onPaymentError: (PaymentError error) {
-                    setState(() {
-                      String fullErrorType = '${error.type}/${error.nativeType}';
-
-                      _inProgress = false;
-                      _showSnackBar('Ошибка(${error.message}) $fullErrorType');
-                    });
-                  },
-                  onPaymentStart: (String val) {
-                    setState(() {
-                      _id = val;
-                      _paymentProgressText = 'Начало операции возврата';
-                    });
-                  },
-                  onReaderEvent: (ReaderEvent event) {
-                    setState(() {
-                      String fullReaderEventType = '${event.type}/${event.nativeType}';
-                      _paymentProgressText = 'Состояние терминала - $fullReaderEventType';
-                    });
-                  },
-                  onPaymentComplete: (Transaction transaction, bool requiredSignature) {
-                    setState(() {
-                      _inProgress = false;
-                      _paymentProgressText = 'Возврат завершен успешно';
-                      _id = transaction.id;
-                      _requiredSignature = requiredSignature;
-                      print(transaction);
-                    });
-                  },
-                  onHistoryError: (Result result) {
-                    setState(() {
-                      _inProgress = false;
-                      _showSnackBar(result.errorCode == 0 ? 'Оплата не найдена' : 'Ошибка ${result.errorCode}');
-                    });
-                  },
-                  onReverseReject: () {
-                    setState(() {
-                      _inProgress = false;
-                      _showSnackBar('Ошибка. Возврат не возможен');
-                    });
-                  }
+                  singleStepAuth: true
                 );
               },
             )
@@ -144,21 +197,7 @@ class _ReversePaymentPage extends State<ReversePaymentPage> {
             _inProgress = true;
           });
 
-          await PaymentController.adjustReversePayment(
-            id: _id!,
-            signature: await getSignatureData(),
-            onReversePaymentAdjust: (Result result) {
-              if (result.errorCode == 0) {
-                _showSnackBar('Подпись добавлена');
-                setState(() {
-                  _inProgress = false;
-                  _requiredSignature = false;
-                });
-              } else {
-                _showSnackBar('Ошибка ${result.errorCode}');
-              }
-            }
-          );
+          await PaymentController.adjustReversePayment(id: _id!, signature: await getSignatureData());
       }),
       Container(
         decoration: BoxDecoration(
@@ -189,26 +228,7 @@ class _ReversePaymentPage extends State<ReversePaymentPage> {
                 setState(() {
                   _inProgress = true;
                 });
-                await PaymentController.info(
-                  id: _id!,
-                  onInfo: (Result result, Transaction? transaction) {
-                    setState(() {
-                      _inProgress = false;
-                    });
-
-                    if (result.errorCode == 0) {
-                      if (transaction != null) {
-                        print(transaction.toMap());
-                      } else {
-                        _showSnackBar('Оплата не найдена');
-                      }
-
-                      return;
-                    }
-
-                    _showSnackBar('Ошибка ${result.errorCode}');
-                  }
-                );
+                await PaymentController.info(id: _id!);
               }
             )
           )

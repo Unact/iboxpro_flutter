@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:iboxpro_flutter/iboxpro_flutter.dart';
@@ -15,8 +17,37 @@ class _MainPage extends State<MainPage> {
   String _password = '';
   String _deviceName = '';
 
+  late StreamSubscription<PaymentLoginEvent> _onLoginSubscription;
+  late StreamSubscription<PaymentReaderSetDeviceEvent> _onReaderSetDeviceSubscription;
+
   void _showSnackBar(String content) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(content)));
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _onLoginSubscription = PaymentController.onLogin.listen((event) {
+      Navigator.pop(context);
+
+      if (event.result.errorCode == 0) {
+        _showSnackBar('Успешно вошли в систему');
+      } else {
+        _showSnackBar('Произошла ошибка');
+      }
+    });
+    _onReaderSetDeviceSubscription = PaymentController.onReaderSetDevice.listen((event) {
+      _showSnackBar('Успешно установлена связь с терминалом');
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _onLoginSubscription.cancel();
+    _onReaderSetDeviceSubscription.cancel();
   }
 
   List<Widget> _buildLoginPart(BuildContext context) {
@@ -42,19 +73,7 @@ class _MainPage extends State<MainPage> {
             builder: (BuildContext context) => Center(child: CircularProgressIndicator())
           );
 
-          await PaymentController.login(
-            email: _loginEmail,
-            password: _password,
-            onLogin: (Result result) {
-              Navigator.pop(context);
-
-              if (result.errorCode == 0) {
-                _showSnackBar('Успешно вошли в систему');
-              } else {
-                _showSnackBar('Произошла ошибка');
-              }
-            }
-          );
+          await PaymentController.login(email: _loginEmail, password: _password);
         },
       )
     ];
@@ -71,12 +90,7 @@ class _MainPage extends State<MainPage> {
       ElevatedButton(
         child: Text('Подключиться к терминалу'),
         onPressed: () async {
-          await PaymentController.startSearchBTDevice(
-            deviceName: _deviceName,
-            onReaderSetBTDevice: () async {
-              _showSnackBar('Успешно установлена связь с терминалом');
-            }
-          );
+          await PaymentController.startSearchBTDevice(deviceName: _deviceName);
         },
       ),
       ElevatedButton(
