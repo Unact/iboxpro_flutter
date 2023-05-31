@@ -1,3 +1,12 @@
+## 2.0.0
+
+* Добавлены теги externalPaymentData, isNotFinished, canCancel, canReturn для Transaction.
+* Обновлена мин. версия Kotlin
+* Исправлена не корректная работа PaymentController для оплат не требующих терминала
+__breaking change__ Переименованы все enum названия
+__breaking change__ Некоторые теги Transaction теперь могут быть null
+__breaking change__ Изменена работа с PaymentController, теперь все результаты возвращаются в потоках.
+
 ## 1.0.2
 
 * Исправлена ошибка при сборке приложений с более новыми версиями флаттер
