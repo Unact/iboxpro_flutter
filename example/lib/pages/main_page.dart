@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
 import 'package:iboxpro_flutter/iboxpro_flutter.dart';
 import 'package:iboxpro_flutter_example/pages/payment_page.dart';
 import 'package:iboxpro_flutter_example/pages/reverse_payment_page.dart';

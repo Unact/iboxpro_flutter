@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:flutter/material.dart';
 
-import 'package:iboxpro_flutter/iboxpro_flutter.dart';
+import 'package:barcode_widget/barcode_widget.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
+import 'package:iboxpro_flutter/iboxpro_flutter.dart';
 
 class PaymentPage extends StatefulWidget {
   @override
@@ -21,6 +22,7 @@ class _PaymentPage extends State<PaymentPage> {
   final GlobalKey<SignatureState> _sign = GlobalKey<SignatureState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   String? _id;
+  String _qrCode = '';
   bool _requiredSignature = false;
   String _paymentProgressText = 'Оплата не проводилась';
   double? _amount = 50;
@@ -64,29 +66,39 @@ class _PaymentPage extends State<PaymentPage> {
     });
     _onPaymentCompleteSubscription = PaymentController.onPaymentComplete.listen((event) {
       setState(() {
-        _inProgress = false;
         _paymentProgressText = !event.transaction.isNotFinished ? 'Оплата завершена успешно' : 'Ожидание оплаты';
         _id = event.transaction.id;
-        _requiredSignature = event.requiredSignature;
+
+        if (event.transaction.externalPaymentData.isEmpty) {
+          _inProgress = false;
+          _requiredSignature = event.requiredSignature;
+        } else {
+          _qrCode = event.transaction.externalPaymentData.first.value;
+        }
+
         print(event.transaction.toMap());
       });
     });
     _onInfoSubscription = PaymentController.onInfo.listen((event) {
-      setState(() {
-        _inProgress = false;
-      });
-
-      if (event.result.errorCode == 0) {
-        if (event.transaction != null) {
-          print(event.transaction!.toMap());
-        } else {
-          _showSnackBar('Оплата не найдена');
-        }
-
+      if (event.result.errorCode != 0) {
+        _showSnackBar('Ошибка ${event.result.errorCode}');
         return;
       }
 
-      _showSnackBar('Ошибка ${event.result.errorCode}');
+      if (event.transaction == null) {
+        _showSnackBar('Оплата не найдена');
+        return;
+      }
+
+      if (_qrCode != '' && !event.transaction!.isNotFinished) {
+        setState(() {
+          _inProgress = false;
+          _qrCode = '';
+          _paymentProgressText = 'Оплата завершена успешно';
+        });
+      }
+
+      print(event.transaction!.toMap());
     });
     _onPaymentAdjustSubscription = PaymentController.onPaymentAdjust.listen((event) {
       if (event.result.errorCode == 0) {
@@ -189,6 +201,40 @@ class _PaymentPage extends State<PaymentPage> {
     ];
   }
 
+  List<Widget> _buildPaymentQRPart(BuildContext context) {
+  if (_qrCode.isEmpty) return [];
+
+    return [
+      SizedBox(
+        width: 200,
+        height: 200,
+        child: BarcodeWidget(
+          barcode: Barcode.qrCode(errorCorrectLevel: BarcodeQRCorrectionLevel.quartile),
+          drawText: false,
+          padding: const EdgeInsets.all(8),
+          data: _qrCode,
+          width: 150,
+          height: 150,
+        ),
+      ),
+      Container(height: 40),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 200,
+            child: ElevatedButton(
+              child: Text('Проверить оплату'),
+              onPressed: () async {
+                await PaymentController.info(id: _id!);
+              }
+            )
+          )
+        ]
+      )
+    ];
+  }
+
   List<Widget> _buildPaymentSignaturePart(BuildContext context) {
     if (!_requiredSignature)
       return [Container()];
@@ -217,7 +263,7 @@ class _PaymentPage extends State<PaymentPage> {
   }
 
   List<Widget> _buildPaymentInfoPart(BuildContext context) {
-    if (_id == null)
+    if (_id == null || _id!.isEmpty)
       return [Container()];
 
     return [
@@ -288,6 +334,7 @@ class _PaymentPage extends State<PaymentPage> {
           children: _buildPaymentPart(context)
             ..addAll(_buildProgressPart(context))
             ..addAll(_buildStatusPart(context))
+            ..addAll(_buildPaymentQRPart(context))
             ..addAll(_buildPaymentSignaturePart(context))
             ..addAll(_buildPaymentInfoPart(context))
         )

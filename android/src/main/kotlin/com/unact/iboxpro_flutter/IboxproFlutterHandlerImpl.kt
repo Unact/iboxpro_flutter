@@ -83,7 +83,7 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
       result["isNotFinished"] = transactionItem.json["IsNotFinished"]
       result["canCancel"] = transactionItem.json["CanCancel"]
       result["canReturn"] = transactionItem.json["CanReturn"]
-      result["externalPaymentData"] = transactionItem.externalPayment.qr.map {
+      result["externalPaymentData"] = (transactionItem.externalPayment.qr ?: emptyList()).map {
         val res = HashMap<String, Any?>()
         res["title"] = it.key
         res["value"] = it.value
@@ -147,8 +147,14 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
 
     if (arguments["errorCode"] == 0) {
       var transactionItem : TransactionItem? = null
-      if (res.transactions.isNotEmpty()) transactionItem = res.transactions.first()
-      if (res.inProcessTransactions.isNotEmpty()) transactionItem = res.inProcessTransactions.first()
+
+      if (res.transactions != null && res.transactions.isNotEmpty()) {
+        transactionItem = res.transactions.first()
+      }
+
+      if (res.inProcessTransactions != null && res.inProcessTransactions.isNotEmpty()) {
+        transactionItem = res.inProcessTransactions.first()
+      }
 
       if (transactionItem != null) {
         val formattedData = formatTransactionItem(transactionItem)
@@ -195,7 +201,6 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
 
   private fun startReversePayment(call: MethodCall) {
     val params = call.arguments as HashMap<String, Any>
-    val inputType = PaymentController.PaymentInputType.fromValue(params["inputType"] as Int)
     val amount = params["amount"] as Double
     val email = params["receiptEmail"] as? String
     val phone = params["receiptPhone"] as? String
@@ -208,10 +213,16 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
       return
     }
 
-    var transactionItem : TransactionItem? = null
     var action : PaymentController.ReverseAction? = null
-    if (res.transactions.isNotEmpty()) transactionItem = res.transactions.first()
-    if (res.inProcessTransactions.isNotEmpty()) transactionItem = res.inProcessTransactions.first()
+    var transactionItem : TransactionItem? = null
+
+    if (res.transactions != null && res.transactions.isNotEmpty()) {
+      transactionItem = res.transactions.first()
+    }
+
+    if (res.inProcessTransactions != null && res.inProcessTransactions.isNotEmpty()) {
+      transactionItem = res.inProcessTransactions.first()
+    }
 
     if (transactionItem == null) {
       methodChannel.invokeMethod("onInfoError", arguments)
@@ -247,7 +258,7 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
     isSingleStepEMV = singleStepAuth
 
     paymentController.enable()
-    if (methodFromInputType(inputType) != PaymentController.PaymentMethod.CARD) beginPayment()
+    if (methodFromInputType(transactionItem.inputType) != PaymentController.PaymentMethod.CARD) beginPayment()
   }
 
   private fun startSearchBTDevice(call: MethodCall) {

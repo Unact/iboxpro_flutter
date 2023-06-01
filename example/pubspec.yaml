@@ -9,6 +9,7 @@ environment:
 
 dependencies:
   flutter_signature_pad: '3.0.0'
+  barcode_widget: ^2.0.2
   flutter:
     sdk: flutter
 

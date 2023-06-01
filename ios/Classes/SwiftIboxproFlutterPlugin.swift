@@ -73,10 +73,11 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       if (arguments["errorCode"] as! Int == 0) {
         var transactionItem = nil as TransactionItem?
 
-        if (!res!.transactions()!.isEmpty) {
+        if (res!.transactions() != nil && !res!.transactions()!.isEmpty) {
           transactionItem = (res!.transactions().first as! TransactionItem)
         }
-        if (!res!.inProcessTransactions()!.isEmpty) {
+
+        if (res!.inProcessTransactions() != nil && !res!.inProcessTransactions()!.isEmpty) {
           transactionItem = (res!.inProcessTransactions().first as! TransactionItem)
         }
 
@@ -145,10 +146,11 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
 
       var transactionItem = nil as TransactionItem?
 
-      if (!res!.transactions()!.isEmpty) {
+      if (res!.transactions() != nil && !res!.transactions()!.isEmpty) {
         transactionItem = (res!.transactions().first as! TransactionItem)
       }
-      if (!res!.inProcessTransactions()!.isEmpty) {
+
+      if (res!.inProcessTransactions() != nil && !res!.inProcessTransactions()!.isEmpty) {
         transactionItem = (res!.inProcessTransactions().first as! TransactionItem)
       }
 

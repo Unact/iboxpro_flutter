@@ -3,9 +3,8 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-
-import 'package:iboxpro_flutter/iboxpro_flutter.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
+import 'package:iboxpro_flutter/iboxpro_flutter.dart';
 
 class ReversePaymentPage extends StatefulWidget {
   @override
