@@ -1,3 +1,7 @@
+## 2.0.1
+
+* Исправлена ошибка при вызове PaymentController.info
+
 ## 2.0.0
 
 * Добавлены теги externalPaymentData, isNotFinished, canCancel, canReturn для Transaction.
