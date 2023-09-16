@@ -30,13 +30,13 @@ class PaymentCompleteEvent extends PaymentEvent {
 }
 
 class PaymentAdjustEvent extends PaymentEvent {
-    final Result result;
+  final Result result;
 
   PaymentAdjustEvent(this.result);
 }
 
 class PaymentAdjustReverseEvent extends PaymentEvent {
-    final Result result;
+  final Result result;
 
   PaymentAdjustReverseEvent(this.result);
 }
@@ -59,6 +59,7 @@ class PaymentReaderSetDeviceEvent extends PaymentEvent {
 
   PaymentReaderSetDeviceEvent(this.deviceName);
 }
+
 class PaymentRejectReverseEvent extends PaymentEvent {
   PaymentRejectReverseEvent();
 }
