@@ -17,10 +17,12 @@ class _MainPage extends State<MainPage> {
   String _deviceName = '';
 
   late StreamSubscription<PaymentLoginEvent> _onLoginSubscription;
-  late StreamSubscription<PaymentReaderSetDeviceEvent> _onReaderSetDeviceSubscription;
+  late StreamSubscription<PaymentReaderSetDeviceEvent>
+      _onReaderSetDeviceSubscription;
 
   void _showSnackBar(String content) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(content)));
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(content)));
   }
 
   @override
@@ -36,7 +38,8 @@ class _MainPage extends State<MainPage> {
         _showSnackBar('Произошла ошибка');
       }
     });
-    _onReaderSetDeviceSubscription = PaymentController.onReaderSetDevice.listen((event) {
+    _onReaderSetDeviceSubscription =
+        PaymentController.onReaderSetDevice.listen((event) {
       _showSnackBar('Успешно установлена связь с терминалом');
     });
   }
@@ -52,27 +55,27 @@ class _MainPage extends State<MainPage> {
   List<Widget> _buildLoginPart(BuildContext context) {
     return [
       TextFormField(
-        initialValue: _loginEmail,
-        maxLines: 1,
-        decoration: InputDecoration(labelText: 'Логин'),
-        onChanged: (val) => _loginEmail = val
-      ),
+          initialValue: _loginEmail,
+          maxLines: 1,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(labelText: 'Логин'),
+          onChanged: (val) => _loginEmail = val),
       TextFormField(
-        initialValue: _password,
-        obscureText: true,
-        maxLines: 1,
-        decoration: InputDecoration(labelText: 'Пароль'),
-        onChanged: (val) => _password = val
-      ),
+          initialValue: _password,
+          obscureText: true,
+          maxLines: 1,
+          decoration: InputDecoration(labelText: 'Пароль'),
+          onChanged: (val) => _password = val),
       ElevatedButton(
         child: Text('Войти'),
         onPressed: () async {
           showDialog(
-            context: context,
-            builder: (BuildContext context) => Center(child: CircularProgressIndicator())
-          );
+              context: context,
+              builder: (BuildContext context) =>
+                  Center(child: CircularProgressIndicator()));
 
-          await PaymentController.login(email: _loginEmail, password: _password);
+          await PaymentController.login(
+              email: _loginEmail, password: _password);
         },
       )
     ];
@@ -81,11 +84,10 @@ class _MainPage extends State<MainPage> {
   List<Widget> _buildSearchDevicePart(BuildContext context) {
     return [
       TextFormField(
-        initialValue: _deviceName,
-        maxLines: 1,
-        decoration: InputDecoration(labelText: 'Имя терминала'),
-        onChanged: (val) => _deviceName = val
-      ),
+          initialValue: _deviceName,
+          maxLines: 1,
+          decoration: InputDecoration(labelText: 'Имя терминала'),
+          onChanged: (val) => _deviceName = val),
       ElevatedButton(
         child: Text('Подключиться к терминалу'),
         onPressed: () async {
@@ -102,19 +104,44 @@ class _MainPage extends State<MainPage> {
     ];
   }
 
+  List<Widget> _buildReaderParams(BuildContext context) {
+    return [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          ElevatedButton(
+            child: Text('Включить авто NFC'),
+            onPressed: () async {
+              await PaymentController.setCustomReaderParams(notup: true);
+              _showSnackBar('Автоматическое включение NFC активировано');
+            },
+          ),
+          ElevatedButton(
+            child: Text('Отключить авто NFC'),
+            onPressed: () async {
+              await PaymentController.setCustomReaderParams(notup: false);
+              _showSnackBar('Автоматическое включение NFC отключено');
+            },
+          )
+        ],
+      )
+    ];
+  }
+
   List<Widget> _buildPaymentPart(BuildContext context) {
     return [
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-
         children: [
           ElevatedButton(
             child: Text('Оплатить'),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PaymentPage())),
+            onPressed: () => Navigator.push(
+                context, MaterialPageRoute(builder: (_) => PaymentPage())),
           ),
           ElevatedButton(
             child: Text('Вернуть'),
-            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ReversePaymentPage())),
+            onPressed: () => Navigator.push(context,
+                MaterialPageRoute(builder: (_) => ReversePaymentPage())),
           )
         ],
       )
@@ -129,13 +156,12 @@ class _MainPage extends State<MainPage> {
         title: Text('IboxproFlutter'),
       ),
       body: Center(
-        child: ListView(
-          padding: EdgeInsets.all(8),
-          children: _buildLoginPart(context)
-            ..addAll(_buildSearchDevicePart(context))
-            ..addAll(_buildPaymentPart(context))
-        )
-      ),
+          child: ListView(
+              padding: EdgeInsets.all(8),
+              children: _buildLoginPart(context)
+                ..addAll(_buildSearchDevicePart(context))
+                ..addAll(_buildReaderParams(context))
+                ..addAll(_buildPaymentPart(context)))),
     );
   }
 }

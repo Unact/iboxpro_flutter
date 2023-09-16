@@ -64,6 +64,16 @@ class PaymentController {
         .invokeMethod('login', {'email': email, 'password': password});
   }
 
+  /// Устанавливает параметры работы ридера.
+  ///
+  /// [notup] (true/false) – автоматическое включение NFC на ридере P17
+  /// при проведении транзакции
+  static Future<void> setCustomReaderParams({notup = true}) async {
+    await _channel.invokeMethod('setCustomReaderParams', {
+      'NOTUP': notup,
+    });
+  }
+
   /// Начинает операцию принятия оплаты терминалом
   ///
   /// [inputType] вид оплаты, все возможные значения в [InputType]
