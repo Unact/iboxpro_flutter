@@ -15,6 +15,8 @@ class _MainPage extends State<MainPage> {
   String _loginEmail = '';
   String _password = '';
   String _deviceName = '';
+  bool _isHidden = true;
+  bool _nfcActivation = false;
 
   late StreamSubscription<PaymentLoginEvent> _onLoginSubscription;
   late StreamSubscription<PaymentReaderSetDeviceEvent>
@@ -62,9 +64,22 @@ class _MainPage extends State<MainPage> {
           onChanged: (val) => _loginEmail = val),
       TextFormField(
           initialValue: _password,
-          obscureText: true,
+          obscureText: _isHidden,
+          keyboardType: _isHidden ? null : TextInputType.visiblePassword,
+          enableSuggestions: false,
+          autocorrect: false,
           maxLines: 1,
-          decoration: InputDecoration(labelText: 'Пароль'),
+          decoration: InputDecoration(
+            labelText: 'Пароль',
+            suffixIcon: IconButton(
+              icon: Icon(_isHidden ? Icons.visibility : Icons.visibility_off),
+              onPressed: () {
+                setState(() {
+                  _isHidden = !_isHidden;
+                });
+              },
+            ),
+          ),
           onChanged: (val) => _password = val),
       ElevatedButton(
         child: Text('Войти'),
@@ -109,20 +124,22 @@ class _MainPage extends State<MainPage> {
       Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          ElevatedButton(
-            child: Text('Включить авто NFC'),
-            onPressed: () async {
-              await PaymentController.setCustomReaderParams(notup: true);
-              _showSnackBar('Автоматическое включение NFC активировано');
+          Expanded(
+            child:
+                Text('Авто NFC: ${_nfcActivation ? "Включено" : "Отключено"}'),
+          ),
+          Switch(
+            value: _nfcActivation,
+            onChanged: (bool newValue) async {
+              await PaymentController.setCustomReaderParams(nfcActivation: newValue);
+              setState(() {
+                _nfcActivation = newValue;
+              });
+              _showSnackBar(newValue
+                  ? 'Автоматическое включение NFC активировано'
+                  : 'Автоматическое включение NFC отключено');
             },
           ),
-          ElevatedButton(
-            child: Text('Отключить авто NFC'),
-            onPressed: () async {
-              await PaymentController.setCustomReaderParams(notup: false);
-              _showSnackBar('Автоматическое включение NFC отключено');
-            },
-          )
         ],
       )
     ];
