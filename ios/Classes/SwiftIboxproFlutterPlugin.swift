@@ -104,6 +104,16 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
     }
   }
 
+  private func setCustomReaderParams(call: FlutterMethodCall) {
+    let params = call.arguments as! [String: Any]
+    let notup = params["NOTUP"] as! Bool
+
+    var readerParams = [String: Any]()
+    readerParams["NOTUP"] = notup
+
+    paymentController.setCustomReaderParams(readerParams: readerParams)
+  }
+
   public func startPayment(_ call: FlutterMethodCall) {
     let params = call.arguments as! [String: Any]
     let inputType = TransactionInputType(
@@ -210,6 +220,9 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       return result(nil)
     case "login":
       login(call)
+      return result(nil)
+    case "setCustomReaderParams":
+      setCustomReaderParams(call)
       return result(nil)
     case "startPayment":
       startPayment(call)
