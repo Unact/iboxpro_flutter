@@ -51,6 +51,16 @@ class PaymentController {
     });
   }
 
+  /// Устанавливает параметры работы ридера.
+  ///
+  /// [nfcActivation] (true/false) – автоматическое включение NFC на ридере P17
+  /// при проведении транзакции
+  static Future<void> setCustomReaderParams({bool nfcActivation = false}) async {
+    await _channel.invokeMethod('setCustomReaderParams', {
+      'NOTUP': nfcActivation,
+    });
+  }
+
   /// Начинает операцию принятия оплаты терминалом
   ///
   /// [inputType] вид оплаты, все возможные значения в [InputType]

@@ -176,6 +176,16 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
     methodChannel.invokeMethod("onLogin", arguments)
   }
 
+  private fun setCustomReaderParams(call: MethodCall) {
+    val params = call.arguments as HashMap<String, Any>
+    val notup = params["NOTUP"] as Boolean
+
+    val readerParams = Hashtable<String, Any>()
+    readerParams["NOTUP"] = notup
+
+    paymentController.setCustomReaderParams(readerParams)
+  }
+
   private fun startPayment(call: MethodCall) {
     val params = call.arguments as HashMap<String, Any>
     val inputType = PaymentController.PaymentInputType.fromValue(params["inputType"] as Int)
@@ -304,6 +314,10 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
       }
       "login" -> {
         login(call)
+        result.success(null)
+      }
+      "setCustomReaderParams" -> {
+        setCustomReaderParams(call)
         result.success(null)
       }
       "startPayment" -> {
