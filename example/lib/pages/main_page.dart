@@ -19,12 +19,10 @@ class _MainPage extends State<MainPage> {
   bool _nfcActivation = false;
 
   late StreamSubscription<PaymentLoginEvent> _onLoginSubscription;
-  late StreamSubscription<PaymentReaderSetDeviceEvent>
-      _onReaderSetDeviceSubscription;
+  late StreamSubscription<PaymentReaderSetDeviceEvent> _onReaderSetDeviceSubscription;
 
   void _showSnackBar(String content) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(content)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(content)));
   }
 
   @override
@@ -40,8 +38,7 @@ class _MainPage extends State<MainPage> {
         _showSnackBar('Произошла ошибка');
       }
     });
-    _onReaderSetDeviceSubscription =
-        PaymentController.onReaderSetDevice.listen((event) {
+    _onReaderSetDeviceSubscription = PaymentController.onReaderSetDevice.listen((event) {
       _showSnackBar('Успешно установлена связь с терминалом');
     });
   }
@@ -57,40 +54,40 @@ class _MainPage extends State<MainPage> {
   List<Widget> _buildLoginPart(BuildContext context) {
     return [
       TextFormField(
-          initialValue: _loginEmail,
-          maxLines: 1,
-          keyboardType: TextInputType.emailAddress,
-          decoration: InputDecoration(labelText: 'Логин'),
-          onChanged: (val) => _loginEmail = val),
+        initialValue: _loginEmail,
+        maxLines: 1,
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(labelText: 'Логин'),
+        onChanged: (val) => _loginEmail = val),
       TextFormField(
-          initialValue: _password,
-          obscureText: _isHidden,
-          keyboardType: _isHidden ? null : TextInputType.visiblePassword,
-          enableSuggestions: false,
-          autocorrect: false,
-          maxLines: 1,
-          decoration: InputDecoration(
-            labelText: 'Пароль',
-            suffixIcon: IconButton(
-              icon: Icon(_isHidden ? Icons.visibility : Icons.visibility_off),
-              onPressed: () {
-                setState(() {
-                  _isHidden = !_isHidden;
-                });
-              },
-            ),
+        initialValue: _password,
+        obscureText: _isHidden,
+        keyboardType: _isHidden ? null : TextInputType.visiblePassword,
+        enableSuggestions: false,
+        autocorrect: false,
+        maxLines: 1,
+        decoration: InputDecoration(
+          labelText: 'Пароль',
+          suffixIcon: IconButton(
+            icon: Icon(_isHidden ? Icons.visibility : Icons.visibility_off),
+            onPressed: () {
+              setState(() {
+                _isHidden = !_isHidden;
+              });
+            },
           ),
-          onChanged: (val) => _password = val),
+        ),
+        onChanged: (val) => _password = val
+      ),
       ElevatedButton(
         child: Text('Войти'),
         onPressed: () async {
           showDialog(
-              context: context,
-              builder: (BuildContext context) =>
-                  Center(child: CircularProgressIndicator()));
+            context: context,
+            builder: (BuildContext context) => Center(child: CircularProgressIndicator())
+          );
 
-          await PaymentController.login(
-              email: _loginEmail, password: _password);
+          await PaymentController.login(email: _loginEmail, password: _password);
         },
       )
     ];
@@ -99,10 +96,11 @@ class _MainPage extends State<MainPage> {
   List<Widget> _buildSearchDevicePart(BuildContext context) {
     return [
       TextFormField(
-          initialValue: _deviceName,
-          maxLines: 1,
-          decoration: InputDecoration(labelText: 'Имя терминала'),
-          onChanged: (val) => _deviceName = val),
+        initialValue: _deviceName,
+        maxLines: 1,
+        decoration: InputDecoration(labelText: 'Имя терминала'),
+        onChanged: (val) => _deviceName = val
+      ),
       ElevatedButton(
         child: Text('Подключиться к терминалу'),
         onPressed: () async {
@@ -125,8 +123,7 @@ class _MainPage extends State<MainPage> {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           Expanded(
-            child:
-                Text('Авто NFC: ${_nfcActivation ? "Включено" : "Отключено"}'),
+            child: Text('Авто NFC: ${_nfcActivation ? "Включено" : "Отключено"}'),
           ),
           Switch(
             value: _nfcActivation,
@@ -136,8 +133,8 @@ class _MainPage extends State<MainPage> {
                 _nfcActivation = newValue;
               });
               _showSnackBar(newValue
-                  ? 'Автоматическое включение NFC активировано'
-                  : 'Автоматическое включение NFC отключено');
+                ? 'Автоматическое включение NFC активировано'
+                : 'Автоматическое включение NFC отключено');
             },
           ),
         ],
@@ -152,13 +149,11 @@ class _MainPage extends State<MainPage> {
         children: [
           ElevatedButton(
             child: Text('Оплатить'),
-            onPressed: () => Navigator.push(
-                context, MaterialPageRoute(builder: (_) => PaymentPage())),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => PaymentPage())),
           ),
           ElevatedButton(
             child: Text('Вернуть'),
-            onPressed: () => Navigator.push(context,
-                MaterialPageRoute(builder: (_) => ReversePaymentPage())),
+            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ReversePaymentPage())),
           )
         ],
       )
@@ -173,12 +168,12 @@ class _MainPage extends State<MainPage> {
         title: Text('IboxproFlutter'),
       ),
       body: Center(
-          child: ListView(
-              padding: EdgeInsets.all(8),
-              children: _buildLoginPart(context)
-                ..addAll(_buildSearchDevicePart(context))
-                ..addAll(_buildReaderParams(context))
-                ..addAll(_buildPaymentPart(context)))),
+        child: ListView(
+          padding: EdgeInsets.all(8),
+          children: _buildLoginPart(context)
+            ..addAll(_buildSearchDevicePart(context))
+            ..addAll(_buildReaderParams(context))
+            ..addAll(_buildPaymentPart(context)))),
     );
   }
 }
