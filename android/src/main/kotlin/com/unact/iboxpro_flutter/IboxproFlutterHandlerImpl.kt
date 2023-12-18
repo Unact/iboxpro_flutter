@@ -178,10 +178,10 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
 
   private fun setCustomReaderParams(call: MethodCall) {
     val params = call.arguments as HashMap<String, Any>
-    val notup = params["NOTUP"] as Boolean?
+    val notup = params["NOTUP"] as Boolean
 
     val readerParams = Hashtable<String, Any>()
-    readerParams["NOTUP"] = notup ?: false
+    readerParams["NOTUP"] = notup
 
     paymentController.setCustomReaderParams(readerParams)
   }
