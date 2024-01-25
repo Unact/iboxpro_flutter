@@ -83,7 +83,7 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
       result["isNotFinished"] = transactionItem.json["IsNotFinished"]
       result["canCancel"] = transactionItem.json["CanCancel"]
       result["canReturn"] = transactionItem.json["CanReturn"]
-      result["externalPaymentData"] = (transactionItem.externalPayment.qr ?: emptyList()).map {
+      result["externalPaymentData"] = (transactionItem.externalPayment?.qr ?: emptyList()).map {
         val res = HashMap<String, Any?>()
         res["title"] = it.key
         res["value"] = it.value
