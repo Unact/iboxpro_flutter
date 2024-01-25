@@ -1,3 +1,9 @@
+## 2.0.2
+
+* Обновлена версия gradle для Android
+* Обновлена мин. версия Kotlin
+* Исправлена ошибка при получении событий PaymentController.onPaymentComplete для Android
+
 ## 2.0.1
 
 * Исправлена ошибка при вызове PaymentController.info
