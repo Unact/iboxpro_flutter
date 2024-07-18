@@ -3,24 +3,20 @@
 package com.unact.iboxpro_flutter
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.os.Handler
-import androidx.annotation.NonNull
+import android.os.Looper
 import ibox.pro.sdk.external.PaymentContext
 import ibox.pro.sdk.external.ReversePaymentContext
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import io.flutter.plugin.common.PluginRegistry.Registrar
 import ibox.pro.sdk.external.PaymentController
 import ibox.pro.sdk.external.PaymentControllerListener
 import ibox.pro.sdk.external.PaymentResultContext
 import ibox.pro.sdk.external.entities.APIResult
 import ibox.pro.sdk.external.entities.TransactionItem
-import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -356,7 +352,7 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
   private fun searchBTDevice() {
     if (!searchDevice) return
 
-    Handler().postDelayed({
+    Handler(Looper.getMainLooper()).postDelayed({
       val devices = paymentController.getBluetoothDevices(currentActivity)
 
       if (devices.isNotEmpty()) {
@@ -424,13 +420,14 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
         PaymentController.ReaderEvent.SWIPE_CARD,
         PaymentController.ReaderEvent.EMV_TRANSACTION_STARTED,
         PaymentController.ReaderEvent.NFC_TRANSACTION_STARTED,
+        PaymentController.ReaderEvent.CARD_INFO_RECEIVED,
         PaymentController.ReaderEvent.WAITING_FOR_CARD -> {}
       }
 
       handler.methodChannel.invokeMethod("onReaderEvent", arguments)
     }
 
-    override fun onError(error: PaymentController.PaymentError, message: String?) {
+    override fun onError(error: PaymentController.PaymentError, message: String?, extErrorCode: Int) {
       val arguments = HashMap<String, Any>()
 
       arguments["nativeErrorType"] = error.ordinal
@@ -446,7 +443,7 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
     }
     override fun onSelectApplication(p0: MutableList<String>?): Int { return 0 }
     override fun onCancellationTimeout(): Boolean { return false }
-    override fun onScheduleCreationFailed(p0: PaymentController.PaymentError?, p1: String?): Boolean { return false}
+    override fun onScheduleCreationFailed(p0: PaymentController.PaymentError?, p1: String?, p2: Int): Boolean { return false}
     override fun onConfirmSchedule(p0: MutableList<MutableMap.MutableEntry<Date, Double>>?, p1: Double): Boolean { return false }
     override fun onPinEntered() {}
     override fun onReturnPowerOnNFCResult(p0: Boolean) {}
@@ -459,10 +456,19 @@ class IboxproFlutterHandlerImpl: MethodCallHandler {
     override fun onAutoConfigFinished(p0: Boolean, p1: String?, p2: Boolean) {}
     override fun onBatteryState(p0: Double) {}
     override fun onSwitchedToCNP() {}
+    override fun onReaderConfigFinished(p0: Boolean) {}
+
     override fun onPinRequest() {}
     override fun onVerifyMifareCard(p0: Boolean) {}
     override fun onTransferMifareData(p0: String?) {}
     override fun onSearchMifareCard(p0: Hashtable<String, String>?) {}
     override fun onReturnPowerOffNFCResult(p0: Boolean) {}
+    override fun onBatchReadMifareCardResult(p0: String?, p1: Hashtable<String, MutableList<String>>?) {}
+    override fun onBatchWriteMifareCardResult(p0: String?, p1: Hashtable<String, MutableList<String>>?) {}
+    override fun onVerifyMifareULData(p0: Hashtable<String, String>?) {}
+    override fun onGetMifareCardVersion(p0: Hashtable<String, String>?) {}
+    override fun onGetMifareReadData(p0: Hashtable<String, String>?) {}
+    override fun onGetMifareFastReadData(p0: Hashtable<String, String>?) {}
+    override fun onWriteMifareULData(p0: String?) {}
   }
 }

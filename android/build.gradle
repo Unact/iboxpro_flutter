@@ -18,10 +18,7 @@ rootProject.allprojects {
     repositories {
         google()
         mavenCentral()
-
-        flatDir {
-            dirs project(':iboxpro_flutter').file('libs')
-        }
+        maven { url 'https://maven.iboxmpos.com' }
     }
 }
 
@@ -44,5 +41,6 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation (name: 'ibox.pro.sdk.external', ext: 'aar')
+    implementation 'com.iboxmpos:sdk:1.9.11'
+    implementation 'androidx.appcompat:appcompat:1.0.0'
 }

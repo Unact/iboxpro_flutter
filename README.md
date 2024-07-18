@@ -39,6 +39,14 @@ Flutter плагин для работы с библиотекой [iboxpro](htt
 
 ### Android
 
+Добавить в `android/app/build.gradle`
+
+```
+dependencies {
+    implementation 'com.iboxmpos:sdk:1.9.11'
+}
+```
+
 Указать в `AndroidManifest.xml`
 
 ```xml
