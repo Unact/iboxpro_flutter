@@ -302,7 +302,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       self.paymentController.disable()
     }
 
-    public func paymentControllerStartTransaction(_ transactionId: String!) {
+    public func paymentControllerStartTransaction(_ transactionId: String) {
       let arguments: [String:String] = [
         "id": transactionId
       ]
@@ -310,10 +310,10 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       methodChannel.invokeMethod("onPaymentStart", arguments: arguments)
     }
 
-    public func paymentControllerDone(_ transactionData: TransactionData!) {
+    public func paymentControllerDone(_ transactionData: TransactionData?) {
       let arguments: [String:Any] = [
-        "requiredSignature": transactionData.requiredSignature,
-        "transaction": SwiftIboxproFlutterPlugin.formatTransactionItem(transactionData.transaction!)
+        "requiredSignature": transactionData!.requiredSignature,
+        "transaction": SwiftIboxproFlutterPlugin.formatTransactionItem(transactionData!.transaction!)
       ]
 
       disable()
@@ -340,7 +340,7 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       methodChannel.invokeMethod("onReaderEvent", arguments: arguments)
     }
 
-    public func paymentControllerRequestBTDevice(_ devices: [Any]!) {
+    public func paymentControllerRequestBTDevice(_ devices: [Any]?) {
       let device = (devices as! [BTDevice]).first(where: { $0.name() == SwiftIboxproFlutterPlugin.deviceName })
 
       if (device != nil) {
@@ -356,13 +356,13 @@ public class SwiftIboxproFlutterPlugin: NSObject, FlutterPlugin {
       }
     }
 
-    public func paymentControllerRequestCardApplication(_ applications: [Any]!) {
+    public func paymentControllerRequestCardApplication(_ applications: [Any]?) {
 
     }
     public func paymentControllerScheduleStepsStart() {
 
     }
-    public func paymentControllerScheduleStepsCreated(_ scheduleSteps: [Any]!) {
+    public func paymentControllerScheduleStepsCreated(_ scheduleSteps: [Any]?) {
 
     }
   }

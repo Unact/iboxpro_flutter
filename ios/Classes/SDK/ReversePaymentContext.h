@@ -15,3 +15,4 @@
 @property (nonatomic, assign) double AmountReverse;
 
 @end
+

@@ -4,6 +4,7 @@
 #import "RecurrentPaymentContext.h"
 #import "ReversePaymentContext.h"
 #import "TransactionData.h"
+#import "TransactionProduct.h"
 #import "Purchase.h"
 #import "Tag.h"
 #import "BTDevice.h"
@@ -66,14 +67,14 @@ typedef enum
 } PaymentControllerReaderEventType;
 
 @protocol PaymentControllerDelegate<NSObject>
--(void)PaymentControllerStartTransaction:(NSString *)transactionID;
--(void)PaymentControllerDone:(TransactionData *)transactionData;
--(void)PaymentControllerError:(PaymentControllerErrorType)error Message:(NSString *)message;
+-(void)PaymentControllerStartTransaction:(nonnull NSString *)transactionID;
+-(void)PaymentControllerDone:(nullable TransactionData *)transactionData;
+-(void)PaymentControllerError:(PaymentControllerErrorType)error Message:(nullable NSString *)message;
 -(void)PaymentControllerReaderEvent:(PaymentControllerReaderEventType)event;
--(void)PaymentControllerRequestCardApplication:(NSArray *)applications;
--(void)PaymentControllerRequestBTDevice:(NSArray *)devices;
+-(void)PaymentControllerRequestCardApplication:(nullable NSArray *)applications;
+-(void)PaymentControllerRequestBTDevice:(nullable NSArray *)devices;
 -(void)PaymentControllerScheduleStepsStart;
--(void)PaymentControllerScheduleStepsCreated:(NSArray *)scheduleSteps;
+-(void)PaymentControllerScheduleStepsCreated:(nullable NSArray *)scheduleSteps;
 @end
 
 @interface PaymentController : NSObject
@@ -101,6 +102,7 @@ typedef enum
 -(APIAuthenticationResult *)authentication;
 -(APIHistoryResult *)historyWithPage:(int)page;
 -(APIHistoryResult *)historyWithTransactionID:(NSString *)transactionID;
+-(APIHistoryResult *)historyWithTransactionExtID:(NSString *)extID;
 -(APIFiscalInfoResult *)fiscalInfoWithTrId:(NSString *)trId;
 -(APIFiscalizeResult *)fiscalizeWithTrId:(NSString *)trId;
 -(APIPrepareResult *)prepareWithProductCode:(NSString *)productCode PrepareData:(NSDictionary *)prepareData;
@@ -114,5 +116,6 @@ typedef enum
 -(void)stopSearch4BTReaders;
 -(void)setReaderType:(PaymentControllerReaderType)readerType;
 -(void)setRequestTimeout:(int)timeout;
+-(void)setNfcNotup:(BOOL)nfcNotup;
 
 @end

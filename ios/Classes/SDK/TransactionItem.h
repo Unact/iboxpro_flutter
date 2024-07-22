@@ -82,6 +82,7 @@ typedef enum
 -(NSString *)terminalName;
 -(NSString *)acquirerID;
 -(NSString *)extID;
+-(NSString *)extTranData;
 -(NSArray *)products;
 -(NSArray *)customFields;
 -(NSArray *)purchases;
