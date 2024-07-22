@@ -1,12 +1,12 @@
 # iboxpro_flutter
 
-Flutter плагин для работы с библиотекой [iboxpro](https://www.2can.ru/developer).  
-Этот проект использует библиотеку iboxpro, которая является собственностью 2can.
+Flutter плагин для работы с библиотекой [iboxPro](https://www.2can.ru/developer/).  
+Этот проект использует библиотеку iboxPro, которая является собственностью 2can.
 
 ## Предварительные настройки
 
 1. Получить логин и пароль на [сайте](https://www.2can.ru)
-2. Указать `version` в `pubspec.yaml`. Апи iboxpro отправляет версию, если ее не указать, то приложение упадет
+2. Указать `version` в `pubspec.yaml`. Апи iboxPro отправляет версию, если ее не указать, то приложение упадет
 3. Настроить нативные среды
 
 ### iOS
@@ -25,16 +25,16 @@ Flutter плагин для работы с библиотекой [iboxpro](htt
         <string>bluetooth-central</string>
     </array>
     <key>NSMicrophoneUsageDescription</key>
-    <string>Used for iBoxPro</string>
+    <string>Used for iboxPro</string>
 ```
 
 Для полного функционала также указать
 
 ```xml
     <key>NSLocationUsageDescription</key>
-    <string>Used for iBoxPro</string>
+    <string>Used for iboxPro</string>
     <key>NSLocationAlwaysUsageDescription</key>
-    <string>Used for iBoxPro</string>
+    <string>Used for iboxPro</string>
 ```
 
 ### Android

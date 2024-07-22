@@ -10,7 +10,7 @@ import 'entities/entities.dart';
 
 /// Класс для связи с терминалом 2can
 /// Дублирует функционал PaymentConroller
-/// Класс не имеет возможности работать параллельно в связи с нижележащей имплементацией библиотеки iboxpro
+/// Класс не имеет возможности работать параллельно в связи с нижележащей имплементацией библиотеки iboxPro
 class PaymentController {
   static final MethodChannel _channel = MethodChannel('iboxpro_flutter')..setMethodCallHandler(_handleMethodCall);
   static final StreamController<PaymentEvent> _streamController = StreamController<PaymentEvent>.broadcast();
