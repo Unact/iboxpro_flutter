@@ -1,6 +1,6 @@
 name: iboxpro_flutter
 description: Flutter плагин для работы с библиотекой iboxPro
-version: 2.0.3
+version: 2.0.4
 homepage: https://github.com/Unact/iboxpro_flutter
 
 environment:
